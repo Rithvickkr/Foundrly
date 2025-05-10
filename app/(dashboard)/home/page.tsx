@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function DashboardHome() {
@@ -15,6 +16,7 @@ export default function DashboardHome() {
     { sender: "AI", message: "Welcome! Need help with your pitch deck?" },
   ]);
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
   // Sample data
   const recentDecks = [
@@ -39,7 +41,7 @@ export default function DashboardHome() {
           <CardTitle className="text-2xl font-bold">Welcome back, {userName}! 🎉</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-4">
-          <Button className="bg-blue-600 hover:bg-blue-700">🚀 Create a New Pitch Deck</Button>
+          <Button onClick={() => router.push("/createpitchdeck")} className="bg-blue-600 hover:bg-blue-700">🚀 Create a New Pitch Deck</Button>
           <Button variant="outline">📂 View My Pitch Decks</Button>
         </CardContent>
       </Card>
