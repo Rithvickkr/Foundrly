@@ -47,6 +47,7 @@ const LAYOUTS = {
       <div className="flex flex-col items-center justify-center h-full">
         {isEditable ? (
           <Editor
+            key={`title-${titleFontSize}`}
             value={slide.title}
             onEditorChange={(content) => onTitleChange && onTitleChange(content)}
             init={{
@@ -70,6 +71,7 @@ const LAYOUTS = {
           <div className="mt-4" style={{ marginTop: textBoxSpacing || "1rem" }}>
             {isEditable ? (
               <Editor
+                key={`content-${contentFontSize}`}
                 value={slide.content}
                 onEditorChange={(content) => onContentChange && onContentChange(content)}
                 init={{
@@ -112,6 +114,7 @@ const LAYOUTS = {
       <div className="flex flex-col h-full">
         {isEditable ? (
           <Editor
+            key={`title-${titleFontSize}`}
             value={slide.title}
             onEditorChange={(content) => onTitleChange && onTitleChange(content)}
             init={{
@@ -133,6 +136,7 @@ const LAYOUTS = {
         )}
         {isEditable ? (
           <Editor
+            key={`content-${contentFontSize}`}
             value={slide.content}
             onEditorChange={(content) => onContentChange && onContentChange(content)}
             init={{
@@ -148,7 +152,7 @@ const LAYOUTS = {
               content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
             }}
             apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
-           
+            style={{ marginTop: textBoxSpacing || "1rem" }}
           />
         ) : (
           <div
@@ -174,6 +178,7 @@ const LAYOUTS = {
       <div className="flex flex-col h-full">
         {isEditable ? (
           <Editor
+            key={`title-${titleFontSize}`}
             value={slide.title}
             onEditorChange={(content) => onTitleChange && onTitleChange(content)}
             init={{
@@ -197,6 +202,7 @@ const LAYOUTS = {
           {isEditable ? (
             <>
               <Editor
+                key={`content-left-${contentFontSize}`}
                 value={slide.content}
                 onEditorChange={(content) => onContentChange && onContentChange(content)}
                 init={{
@@ -212,9 +218,10 @@ const LAYOUTS = {
                   content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
                 }}
                 apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
-                
+                className="w-1/2"
               />
               <Editor
+                key={`content-right-${contentFontSize}`}
                 value={slide.content}
                 onEditorChange={(content) => onContentChange && onContentChange(content)}
                 init={{
@@ -230,6 +237,7 @@ const LAYOUTS = {
                   content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
                 }}
                 apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
+                className="w-1/2"
               />
             </>
           ) : (
@@ -283,9 +291,9 @@ export function PitchDeckPlayground() {
     secondaryColor: "#8b5cf6",
     accentColor: "#f97316",
     fontFamily: "Inter",
-    titleFontSize: "2rem", // Default title font size
-    contentFontSize: "1rem", // Default content font size
-    textBoxSpacing: "1rem", // Default spacing between text boxes
+    titleFontSize: "2.5rem", // Consistent with title-only default
+    contentFontSize: "1rem",
+    textBoxSpacing: "1rem",
     animationSpeed: 0.5,
     darkMode: false,
     backgroundImage: "",
@@ -295,26 +303,47 @@ export function PitchDeckPlayground() {
   // Initialize Reveal.js for presentation mode
   useEffect(() => {
     if (isPresenting && slides.length > 0) {
-      import("reveal.js").then((Reveal) => {
-        if (revealRef.current) {
-          revealRef.current.destroy();
+      const initializeReveal = async () => {
+        try {
+          const Reveal = (await import("reveal.js")).default;
+          if (revealRef.current) {
+            revealRef.current.destroy();
+            revealRef.current = null;
+          }
+          // Ensure DOM is ready
+          const revealContainer = document.querySelector(".reveal") as HTMLElement;
+          if (!revealContainer) {
+            console.error("Reveal.js container not found");
+            return;
+          }
+          revealRef.current = new Reveal(revealContainer, {
+            hash: true,
+            transition: designSettings.slideTransition as "slide" | "none" | "fade" | "convex" | "concave" | "zoom" | undefined,
+            transitionSpeed: designSettings.animationSpeed <= 0.3 ? "slow" : designSettings.animationSpeed >= 0.7 ? "fast" : "default",
+            width: containerSize.width,
+            height: containerSize.height,
+            center: true,
+            controls: true,
+            progress: true,
+          });
+          await revealRef.current.initialize();
+          console.log("Reveal.js initialized successfully");
+        } catch (err) {
+          console.error("Error initializing Reveal.js:", err);
+          setError("Failed to initialize presentation mode");
+          toast({ title: "Error", description: "Failed to initialize presentation mode", variant: "destructive" });
         }
-        revealRef.current = new Reveal.default({
-          hash: true,
-          transition: designSettings.slideTransition as "slide" | "none" | "fade" | "convex" | "concave" | "zoom" | undefined,
-          transitionSpeed: designSettings.animationSpeed <= 0.3 ? "slow" : designSettings.animationSpeed >= 0.7 ? "fast" : "default",
-          width: containerSize.width,
-          height: containerSize.height,
-          center: true,
-          controls: true,
-          progress: true,
-        });
-        revealRef.current.initialize();
-      });
+      };
+      initializeReveal();
     }
     return () => {
       if (revealRef.current) {
-        revealRef.current.destroy();
+        try {
+          revealRef.current.destroy();
+          revealRef.current = null;
+        } catch (err) {
+          console.error("Error destroying Reveal.js:", err);
+        }
       }
     };
   }, [isPresenting, slides, designSettings.slideTransition, designSettings.animationSpeed, containerSize]);
