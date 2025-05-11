@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { useTheme } from "next-themes"
-import { motion, AnimatePresence } from "framer-motion"
-import { FileUp, Save, Wand2, Sun, Moon, X, Check, Sparkles, Rocket, BarChart3, PieChart, Target } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Switch } from "@/components/ui/switch"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { toast } from "@/components/use-toast"
-import { cn } from "@/lib/utils"
-import { GlowingEffect } from "@/components/ui/glowing-effect"
-import { getAuthToken } from "@/lib/actions/getauthtoken"
-import { useRouter } from "next/navigation"
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileUp, Save, Wand2, Sun, Moon, X, Check, Sparkles, Rocket, BarChart3, PieChart, Target, Upload, Info, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "@/components/use-toast";
+import { cn } from "@/lib/utils";
+import { getAuthToken } from "@/lib/actions/getauthtoken";
+import { useRouter } from "next/navigation";
 
 // Industry options
 const industries = [
   "Technology", "Healthcare", "Finance", "Education", "E-commerce", "Real Estate",
   "Food & Beverage", "Entertainment", "Transportation", "Energy", "Manufacturing", "Other",
-]
+];
 
 // Startup stages
 const startupStages = [
@@ -31,29 +31,29 @@ const startupStages = [
   { value: "mvp", label: "MVP", icon: Rocket },
   { value: "scaling", label: "Scaling", icon: BarChart3 },
   { value: "revenue", label: "Revenue Stage", icon: PieChart },
-]
+];
 
 // Popular markets
 const popularMarkets = [
   "B2B", "B2C", "Enterprise", "Small Business", "North America", "Europe",
   "Asia Pacific", "Global", "Millennials", "Gen Z",
-]
+];
 
 interface FormData {
-  title: string
-  description: string
-  industry: string
-  startupStage: string
-  targetMarket: string
-  aiCompetitorAnalysis: boolean
-  aiFinancialProjections: boolean
-  aiSlideContent: boolean
-  logo: File | null
-  businessDocuments: File[]
+  title: string;
+  description: string;
+  industry: string;
+  startupStage: string;
+  targetMarket: string;
+  aiCompetitorAnalysis: boolean;
+  aiFinancialProjections: boolean;
+  aiSlideContent: boolean;
+  logo: File | null;
+  businessDocuments: File[];
 }
 
 export function CreatePitchDeck() {
-  const { theme, setTheme } = useTheme()
+
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -65,25 +65,33 @@ export function CreatePitchDeck() {
     aiSlideContent: true,
     logo: null,
     businessDocuments: [],
-  })
-  const [errors, setErrors] = useState({ title: "" })
-  const [showMarketSuggestions, setShowMarketSuggestions] = useState(false)
-  const [filteredMarkets, setFilteredMarkets] = useState(popularMarkets)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedPitch, setGeneratedPitch] = useState<string | null>(null)
-  const router = useRouter()
-  
-  const [loading, setLoading] = useState(false)
+  });
+  const [errors, setErrors] = useState({ title: "" });
+  const [showMarketSuggestions, setShowMarketSuggestions] = useState(false);
+  const [filteredMarkets, setFilteredMarkets] = useState(popularMarkets);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedPitch, setGeneratedPitch] = useState<string | null>(null);
+  const router = useRouter();
 
-  const logoInputRef = useRef<HTMLInputElement>(null)
-  const documentsInputRef = useRef<HTMLInputElement>(null)
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const documentsInputRef = useRef<HTMLInputElement>(null);
+
+  // Calculate form completion percentage
+  const completionPercentage = Math.round(
+    (Object.entries(formData).reduce((count, [key, value]) => {
+      if (key === "logo" || key === "businessDocuments") return count;
+      if (typeof value === "string" && value) return count + 1;
+      if (typeof value === "boolean" && value) return count + 1;
+      return count;
+    }, 0) / 8) * 100
+  );
 
   // Load draft from localStorage
   useEffect(() => {
-    const savedDraft = localStorage.getItem("pitchDeckDraft")
+    const savedDraft = localStorage.getItem("pitchDeckDraft");
     if (savedDraft) {
       try {
-        const parsedDraft = JSON.parse(savedDraft)
+        const parsedDraft = JSON.parse(savedDraft);
         setFormData((prevData) => ({
           ...prevData,
           title: parsedDraft.title || "",
@@ -94,91 +102,91 @@ export function CreatePitchDeck() {
           aiCompetitorAnalysis: parsedDraft.aiCompetitorAnalysis ?? true,
           aiFinancialProjections: parsedDraft.aiFinancialProjections ?? true,
           aiSlideContent: parsedDraft.aiSlideContent ?? true,
-        }))
+        }));
       } catch (error) {
-        console.error("Error loading draft:", error)
+        console.error("Error loading draft:", error);
       }
     }
-  }, [])
+  }, []);
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "title") {
       setErrors((prev) => ({
         ...prev,
         title: value.length < 5 ? "Title must be at least 5 characters" : value.length > 100 ? "Title must be less than 100 characters" : "",
-      }))
+      }));
     }
 
     if (name === "targetMarket") {
-      const filtered = popularMarkets.filter((market) => market.toLowerCase().includes(value.toLowerCase()))
-      setFilteredMarkets(filtered)
-      setShowMarketSuggestions(value.length > 0 && filtered.length > 0)
+      const filtered = popularMarkets.filter((market) => market.toLowerCase().includes(value.toLowerCase()));
+      setFilteredMarkets(filtered);
+      setShowMarketSuggestions(value.length > 0 && filtered.length > 0);
     }
-  }
+  };
 
   // Handle select changes
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   // Handle switch changes
   const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: checked }));
+  };
 
   // Handle market suggestion selection
   const handleSelectMarket = (market: string) => {
-    setFormData((prev) => ({ ...prev, targetMarket: market }))
-    setShowMarketSuggestions(false)
-  }
+    setFormData((prev) => ({ ...prev, targetMarket: market }));
+    setShowMarketSuggestions(false);
+  };
 
   // Handle logo upload
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
+      const file = e.target.files[0];
       if (!["image/png", "image/jpeg", "image/svg+xml"].includes(file.type)) {
-        toast({ title: "Invalid file type", description: "Please upload PNG, JPG, or SVG files only", variant: "destructive" })
-        return
+        toast({ title: "Invalid file type", description: "Please upload PNG, JPG, or SVG files only", variant: "destructive" });
+        return;
       }
-      setFormData((prev) => ({ ...prev, logo: file }))
+      setFormData((prev) => ({ ...prev, logo: file }));
     }
-  }
+  };
 
   // Handle document upload
   const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files)
+      const files = Array.from(e.target.files);
       const validFiles = files.filter((file) =>
         ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(file.type)
-      )
+      );
       if (validFiles.length !== files.length) {
-        toast({ title: "Invalid file type", description: "Please upload PDF or DOCX files only", variant: "destructive" })
+        toast({ title: "Invalid file type", description: "Please upload PDF or DOCX files only", variant: "destructive" });
       }
-      setFormData((prev) => ({ ...prev, businessDocuments: [...prev.businessDocuments, ...validFiles] }))
+      setFormData((prev) => ({ ...prev, businessDocuments: [...prev.businessDocuments, ...validFiles] }));
     }
-  }
+  };
 
   // Remove document
   const removeDocument = (index: number) => {
-    setFormData((prev) => ({ ...prev, businessDocuments: prev.businessDocuments.filter((_, i) => i !== index) }))
-  }
+    setFormData((prev) => ({ ...prev, businessDocuments: prev.businessDocuments.filter((_, i) => i !== index) }));
+  };
 
   // Remove logo
   const removeLogo = () => {
-    setFormData((prev) => ({ ...prev, logo: null }))
-    if (logoInputRef.current) logoInputRef.current.value = ""
-  }
+    setFormData((prev) => ({ ...prev, logo: null }));
+    if (logoInputRef.current) logoInputRef.current.value = "";
+  };
 
   // Save draft
   const saveDraft = () => {
-    const draftData = { ...formData, logo: null, businessDocuments: [] }
-    localStorage.setItem("pitchDeckDraft", JSON.stringify(draftData))
-    toast({ title: "Draft saved", description: "Your pitch deck draft has been saved locally" })
-  }
+    const draftData = { ...formData, logo: null, businessDocuments: [] };
+    localStorage.setItem("pitchDeckDraft", JSON.stringify(draftData));
+    toast({ title: "Draft Saved", description: "Your pitch deck draft has been saved locally.", variant: "default" });
+  };
 
   // Generate pitch deck
   const generatePitchDeck = async () => {
@@ -188,30 +196,28 @@ export function CreatePitchDeck() {
       return;
     }
 
-    setLoading(true);
+    setIsGenerating(true);
     try {
-      // 🔥 Get the auth token (modify this based on your auth system)
-      const authToken = await getAuthToken(); // Example for token storage
-      console.log("authToken", authToken?.length);
+      const authToken = await getAuthToken();
       if (!authToken) {
         console.error("User not authenticated. Please log in.");
-        setLoading(false);
+        toast({ title: "Error", description: "Please log in to generate a pitch deck.", variant: "destructive" });
+        setIsGenerating(false);
         return;
       }
 
-    try {
       const response = await fetch("http://127.0.0.1:8000/pitchdecks", {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`, 
-         },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
           title,
           description,
           industry,
           startup_stage: startupStage,
           target_market: targetMarket,
-          // ai_features: ["slide_content", "competitor_analysis", "financial_projections"], 
         }),
       });
 
@@ -223,173 +229,239 @@ export function CreatePitchDeck() {
       setTimeout(() => {
         router.push(`/pitchdeck/${data.pitch_deck}`);
       }, 4000);
-      
-      // toast({ title: "Success", description: "Pitch deck generated successfully!", variant: "default" });
-    } catch (error) {
-      console.error("Error:", error);
-      toast({ title: "Error", description: "Failed to generate pitch deck.", variant: "destructive" });
-    }
 
-    setLoading(false);
+      toast({ title: "Success", description: "Pitch deck generated successfully!", variant: "default" });
     } catch (error) {
       console.error("Error:", error);
       toast({ title: "Error", description: "Failed to generate pitch deck.", variant: "destructive" });
     } finally {
-      setLoading(false);
+      setIsGenerating(false);
     }
   };
-    
-  
 
   // Handle drag and drop
-  const handleDragOver = (e: React.DragEvent) => e.preventDefault()
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
   const handleDrop = (e: React.DragEvent, type: "logo" | "documents") => {
-    e.preventDefault()
+    e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       if (type === "logo") {
-        const file = e.dataTransfer.files[0]
+        const file = e.dataTransfer.files[0];
         if (["image/png", "image/jpeg", "image/svg+xml"].includes(file.type)) {
-          setFormData((prev) => ({ ...prev, logo: file }))
+          setFormData((prev) => ({ ...prev, logo: file }));
         } else {
-          toast({ title: "Invalid file type", description: "Please upload PNG, JPG, or SVG files only", variant: "destructive" })
+          toast({ title: "Invalid file type", description: "Please upload PNG, JPG, or SVG files only", variant: "destructive" });
         }
       } else {
-        const files = Array.from(e.dataTransfer.files)
+        const files = Array.from(e.dataTransfer.files);
         const validFiles = files.filter((file) =>
           ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(file.type)
-        )
+        );
         if (validFiles.length !== files.length) {
-          toast({ title: "Invalid file type", description: "Please upload PDF or DOCX files only", variant: "destructive" })
+          toast({ title: "Invalid file type", description: "Please upload PDF or DOCX files only", variant: "destructive" });
         }
         if (validFiles.length > 0) {
-          setFormData((prev) => ({ ...prev, businessDocuments: [...prev.businessDocuments, ...validFiles] }))
+          setFormData((prev) => ({ ...prev, businessDocuments: [...prev.businessDocuments, ...validFiles] }));
         }
       }
     }
-  }
+  };
 
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
-  }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  };
 
   const itemVariants = {
-    hidden: { y: 10, opacity: 0 },
+    hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 20 } },
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-background pt-8 pb-16">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-950 dark:bg-gradient-to-br dark:from-gray-900 dark:to-blue-950 text-gray-100 pt-20 pb-24">
+      
+      
+
       {/* Hero Section */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <motion.div
-               
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
-        >
-          <div>
-         
-            <h1 className="text-3xl sm:text-4xl font-semibold text-foreground">
-              Create Pitch Deck
-            </h1>
-            <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-xl">
-              Build an AI-powered pitch deck to showcase your startup vision.
-            </p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="container mx-auto px-4 sm:px-8 max-w-4xl mb-12 text-center"
+      >
+        <div className="flex flex-col items-center gap-6">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-100">
+            Craft Your <span className="text-teal-500">Investor-Ready</span> Pitch Deck
+          </h1>
+          <p className="text-base text-gray-400 max-w-2xl">
+            Transform your startup vision into a compelling pitch with AI-driven insights and seamless automation.
+          </p>
+          {/* Progress Indicator */}
+          <div className="w-full">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-400">Completion</span>
+              <span className="text-sm text-gray-400">{completionPercentage}%</span>
+            </div>
+            <div className="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="absolute top-0 left-0 h-full bg-indigo-600 transition-all duration-300"
+                style={{ width: `${completionPercentage}%` }}
+              />
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="hover:bg-muted rounded-full"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
-        </motion.div>
-      </div>
+          
+         
+        </div>
+      </motion.div>
 
       {/* Main Form */}
       <motion.div
-        className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl"
+        className="container mx-auto px-4 sm:px-8 max-w-4xl"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-      
-        {/* Basic Information */}
+        {/* Pitch Essentials */}
         <motion.div variants={itemVariants}>
-        <div>
-        
-          <Card className="mb-6 border border-border shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium">Basic Information</CardTitle>
-              <CardDescription className="text-sm">Start with the essentials</CardDescription>
+          <Card className="mb-12 bg-gray-800 border-gray-700 shadow-md rounded-xl hover:shadow-lg transition-all duration-200 backdrop-blur-sm">
+            <CardHeader className="px-8 py-6">
+              <CardTitle className="text-2xl font-semibold text-gray-100 flex items-center">
+                <FileText className="w-6 h-6 mr-2 text-indigo-600" />
+                Pitch Essentials
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-400">Define the core elements of your pitch deck.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 grid grid-cols-1 lg:grid-row-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-medium">
-                  Title <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="title" className="text-sm font-semibold text-gray-100">
+                    Title <span className="text-red-400">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>A concise title that captures your startup's essence.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Input
                   id="title"
                   name="title"
-                  placeholder="Your pitch deck title"
+                  placeholder="Enter your pitch deck title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className={cn("text-sm", errors.title && "border-red-500")}
+                  className={cn(
+                    "bg-gray-850 border-gray-700 text-gray-100 focus:ring-2 focus:ring-indigo-500 rounded-lg hover:border-indigo-600 transition-all duration-200",
+                    errors.title && "border-red-400"
+                  )}
                 />
-                {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
-                <div className="text-xs text-muted-foreground">{formData.title.length}/100</div>
+                <AnimatePresence>
+                  {errors.title && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      className="text-xs text-red-400"
+                    >
+                      {errors.title}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                <div className="text-xs text-gray-400">{formData.title.length}/100</div>
               </div>
               <div className="space-y-2">
-         
-                <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="description" className="text-sm font-semibold text-gray-100">
+                    Description <span className="text-red-400">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>Briefly describe your startup's mission and value proposition.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Textarea
                   id="description"
                   name="description"
-                  placeholder="Briefly describe your startup"
+                  placeholder="Describe your startup's vision"
                   value={formData.description}
                   onChange={handleInputChange}
-                  className="text-sm min-h-[100px]"
+                  className="bg-gray-850 border-gray-700 text-gray-100 focus:ring-2 focus:ring-indigo-500 rounded-lg min-h-[120px] hover:border-indigo-600 transition-all duration-200"
                   maxLength={500}
                 />
-                <div className="text-xs text-muted-foreground">{formData.description.length}/500</div>
+                <div className="text-xs text-gray-400">{formData.description.length}/500</div>
               </div>
             </CardContent>
           </Card>
-          </div>
         </motion.div>
 
-        {/* Business Details */}
+        {/* Business Profile */}
         <motion.div variants={itemVariants}>
-          <Card className="mb-6 border border-border shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium">Business Details</CardTitle>
-              <CardDescription className="text-sm">Tell us about your venture</CardDescription>
+          <Card className="mb-12 bg-gray-800 border-gray-700 shadow-md rounded-xl hover:shadow-lg transition-all duration-200 backdrop-blur-sm">
+            <CardHeader className="px-8 py-6">
+              <CardTitle className="text-2xl font-semibold text-gray-100 flex items-center">
+                <Target className="w-6 h-6 mr-2 text-indigo-600" />
+                Business Profile
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-400">Provide key details about your venture.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 space-y-8">
               <div className="space-y-2">
-                <Label htmlFor="industry" className="text-sm font-medium">Industry</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="industry" className="text-sm font-semibold text-gray-100">
+                    Industry <span className="text-red-400">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>Select the industry your startup operates in.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Select value={formData.industry} onValueChange={(value) => handleSelectChange("industry", value)}>
-                  <SelectTrigger id="industry" className="text-sm">
+                  <SelectTrigger id="industry" className="bg-gray-850 border-gray-700 text-gray-100 focus:ring-2 focus:ring-indigo-500 rounded-lg hover:border-indigo-600 transition-all duration-200">
                     <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
                     {industries.map((industry) => (
-                      <SelectItem key={industry} value={industry} className="text-sm">{industry}</SelectItem>
+                      <SelectItem key={industry} value={industry} className="text-sm hover:bg-gray-700">{industry}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Startup Stage</Label>
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-semibold text-gray-100">
+                    Startup Stage <span className="text-red-400">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>Choose the current stage of your startup.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <RadioGroup
                   value={formData.startupStage}
                   onValueChange={(value) => handleSelectChange("startupStage", value)}
-                  className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
                 >
                   {startupStages.map((stage) => (
                     <div key={stage.value}>
@@ -397,11 +469,11 @@ export function CreatePitchDeck() {
                       <Label
                         htmlFor={stage.value}
                         className={cn(
-                          "flex flex-col items-center p-3 rounded-md border cursor-pointer text-sm",
-                          formData.startupStage === stage.value ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
+                          "flex flex-col items-center p-4 rounded-lg border cursor-pointer text-sm",
+                          formData.startupStage === stage.value ? "border-indigo-600 bg-indigo-900/50" : "border-gray-700 hover:bg-gray-700"
                         )}
                       >
-                        <stage.icon className="h-5 w-5 mb-1" />
+                        <stage.icon className="h-8 w-8 mb-2 text-indigo-600" />
                         {stage.label}
                       </Label>
                     </div>
@@ -409,14 +481,28 @@ export function CreatePitchDeck() {
                 </RadioGroup>
               </div>
               <div className="space-y-2 relative">
-                <Label htmlFor="targetMarket" className="text-sm font-medium">Target Market</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="targetMarket" className="text-sm font-semibold text-gray-100">
+                    Target Market <span className="text-red-400">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>Specify your primary audience or market segment.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Input
                   id="targetMarket"
                   name="targetMarket"
                   placeholder="e.g., B2B, Millennials"
                   value={formData.targetMarket}
                   onChange={handleInputChange}
-                  className="text-sm"
+                  className="bg-gray-850 border-gray-700 text-gray-100 focus:ring-2 focus:ring-indigo-500 rounded-lg hover:border-indigo-600 transition-all duration-200"
                 />
                 <AnimatePresence>
                   {showMarketSuggestions && (
@@ -424,12 +510,24 @@ export function CreatePitchDeck() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
-                      className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-sm max-h-60 overflow-auto"
+                      className="absolute z-10 w-full mt-1 bg-gray-800 border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto"
                     >
+                      <div className="flex justify-between items-center px-4 py-2">
+                        <span className="text-sm text-gray-400">Suggestions</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowMarketSuggestions(false)}
+                          aria-label="Close suggestions"
+                          className="text-gray-100 hover:bg-gray-700"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                       {filteredMarkets.map((market) => (
                         <div
                           key={market}
-                          className="px-3 py-2 text-sm hover:bg-muted cursor-pointer"
+                          className="px-4 py-2 text-sm text-gray-100 hover:bg-gray-700 cursor-pointer rounded"
                           onClick={() => handleSelectMarket(market)}
                         >
                           {market}
@@ -443,31 +541,50 @@ export function CreatePitchDeck() {
           </Card>
         </motion.div>
 
-        {/* AI Assistance */}
+        {/* AI Enhancements */}
         <motion.div variants={itemVariants}>
-          <Card className="mb-6 border border-border shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium">AI Assistance</CardTitle>
-              <CardDescription className="text-sm">Enhance with AI features</CardDescription>
+          <Card className="mb-12 bg-gray-800 border-gray-700 shadow-md rounded-xl hover:shadow-lg transition-all duration-200 backdrop-blur-sm">
+            <CardHeader className="px-8 py-6">
+              <CardTitle className="text-2xl font-semibold text-gray-100 flex items-center">
+                <Wand2 className="w-6 h-6 mr-2 text-indigo-600" />
+                AI Enhancements
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-400">Elevate your pitch with AI-driven features.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 space-y-4">
               {[
-                { id: "aiCompetitorAnalysis", label: "Competitor Analysis", icon: BarChart3 },
-                { id: "aiFinancialProjections", label: "Financial Projections", icon: PieChart },
-                { id: "aiSlideContent", label: "Slide Content", icon: Sparkles },
+                { id: "aiCompetitorAnalysis", label: "Competitor Analysis", icon: BarChart3, description: "Analyze competitors to position your startup strategically." },
+                { id: "aiFinancialProjections", label: "Financial Projections", icon: PieChart, description: "Generate detailed financial forecasts for credibility." },
+                { id: "aiSlideContent", label: "Slide Content Generation", icon: Sparkles, description: "Craft compelling slide narratives with AI." },
               ].map((feature) => (
                 <div
                   key={feature.id}
-                  className="flex items-center justify-between p-3 rounded-md border border-border hover:bg-muted"
+                  className="flex items-center justify-between p-4 rounded-lg border border-gray-700 hover:bg-gray-700 transition-all duration-200"
                 >
-                  <div className="flex items-center gap-2">
-                    <feature.icon className="h-4 w-4 text-primary" />
-                    <Label htmlFor={feature.id} className="text-sm font-medium">{feature.label}</Label>
+                  <div className="flex items-center gap-3">
+                    <feature.icon className="h-6 w-6 text-indigo-600" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor={feature.id} className="text-sm font-semibold text-gray-100">{feature.label}</Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-4 w-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                              <p>{feature.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-xs text-gray-400">{feature.description}</p>
+                    </div>
                   </div>
                   <Switch
                     id={feature.id}
                     checked={formData[feature.id as keyof FormData] as boolean}
                     onCheckedChange={(checked) => handleSwitchChange(feature.id, checked)}
+                    className="data-[state=checked]:bg-indigo-600 h-6 w-10 rounded-full relative transition-all duration-200"
                   />
                 </div>
               ))}
@@ -475,35 +592,57 @@ export function CreatePitchDeck() {
           </Card>
         </motion.div>
 
-        {/* Upload & Attachments */}
+        {/* File Uploads */}
         <motion.div variants={itemVariants}>
-          <Card className="mb-6 border border-border shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium">Uploads</CardTitle>
-              <CardDescription className="text-sm">Add your logo and documents</CardDescription>
+          <Card className="mb-12 bg-gray-800 border-gray-700 shadow-md rounded-xl hover:shadow-lg transition-all duration-200 backdrop-blur-sm">
+            <CardHeader className="px-8 py-6">
+              <CardTitle className="text-2xl font-semibold text-gray-100 flex items-center">
+                <Upload className="w-6 h-6 mr-2 text-indigo-600" />
+                File Uploads
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-400">Personalize your pitch with a logo and supporting documents.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 space-y-6">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Logo</Label>
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-semibold text-gray-100">Logo</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>Upload a high-quality logo to brand your pitch deck.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <div
                   className={cn(
-                    "border-2 border-dashed rounded-md p-4 text-center text-sm",
-                    formData.logo ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                    "border-2 border-dashed rounded-lg p-6 text-center text-sm border-gray-700 hover:border-indigo-600 hover:bg-gray-700/50 transition-all duration-200",
+                    formData.logo && "border-indigo-600 bg-indigo-900/20"
                   )}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, "logo")}
                 >
                   {formData.logo ? (
-                    <div className="flex items-center justify-between">
-                      <span className="truncate max-w-[200px]">{formData.logo.name}</span>
-                      <Button variant="ghost" size="icon" onClick={removeLogo} aria-label="Remove logo">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 truncate max-w-[200px]">
+                        <img
+                          src={URL.createObjectURL(formData.logo)}
+                          alt="Logo preview"
+                          className="h-8 w-8 object-contain rounded"
+                        />
+                        <span className="text-gray-100 truncate">{formData.logo.name}</span>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={removeLogo} aria-label="Remove logo" className="text-gray-100 hover:bg-gray-700">
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ) : (
-                    <p>
-                      Drop logo here or{" "}
-                      <span className="text-primary cursor-pointer" onClick={() => logoInputRef.current?.click()}>
+                    <p className="text-gray-400">
+                      Drag and drop your logo here or{" "}
+                      <span className="text-indigo-600 cursor-pointer hover:underline" onClick={() => logoInputRef.current?.click()}>
                         browse
                       </span>
                     </p>
@@ -518,15 +657,27 @@ export function CreatePitchDeck() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Documents</Label>
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-semibold text-gray-100">Documents</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
+                        <p>Upload PDF or DOCX files to provide additional context.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <div
-                  className="border-2 border-dashed rounded-md p-4 text-center text-sm border-border hover:border-primary/50"
+                  className="border-2 border-dashed rounded-lg p-6 text-center text-sm border-gray-700 hover:border-indigo-600 hover:bg-gray-700/50 transition-all duration-200"
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, "documents")}
                 >
-                  <p>
-                    Drop documents here or{" "}
-                    <span className="text-primary cursor-pointer" onClick={() => documentsInputRef.current?.click()}>
+                  <p className="text-gray-400">
+                    Drag and drop documents here or{" "}
+                    <span className="text-indigo-600 cursor-pointer hover:underline" onClick={() => documentsInputRef.current?.click()}>
                       browse
                     </span>
                   </p>
@@ -550,16 +701,18 @@ export function CreatePitchDeck() {
                       {formData.businessDocuments.map((doc, index) => (
                         <motion.div
                           key={index}
-                          className="flex items-center justify-between text-sm p-2 bg-muted rounded-md"
+                          className="flex items-center justify-between text-sm p-3 bg-gray-700 rounded-lg"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
                         >
-                          <span className="truncate max-w-[200px]">{doc.name}</span>
+                          <span className="truncate max-w-[200px] text-gray-100">{doc.name}</span>
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => removeDocument(index)}
                             aria-label="Remove document"
+                            className="text-gray-100 hover:bg-gray-600"
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -574,23 +727,29 @@ export function CreatePitchDeck() {
         </motion.div>
 
         {/* Actions */}
-        <motion.div className="flex flex-col sm:flex-row gap-3 justify-end" variants={itemVariants}>
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+        >
           <Button
             variant="outline"
             onClick={saveDraft}
-            className="text-sm border-border hover:bg-muted"
+            className="bg-gray-700 border-gray-700 text-gray-100 hover:bg-gray-600 rounded-lg px-8 py-3 text-base shadow-md transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-indigo-500"
           >
-            <Save className="h-4 w-4 mr-2" />
+            <Save className="h-5 w-5 mr-2" />
             Save Draft
           </Button>
           <Button
             onClick={generatePitchDeck}
             disabled={isGenerating || !!errors.title}
-            className="text-sm"
+            className={cn(
+              "bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-8 py-3 text-base shadow-md shadow-indigo-500/50 transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-indigo-500",
+              (isGenerating || !!errors.title) && "opacity-50 cursor-not-allowed"
+            )}
           >
             {isGenerating ? (
               <>
-                <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
@@ -598,7 +757,7 @@ export function CreatePitchDeck() {
               </>
             ) : (
               <>
-                <Wand2 className="h-4 w-4 mr-2" />
+                <Wand2 className="h-5 w-5 mr-2" />
                 Generate Deck
               </>
             )}
@@ -606,7 +765,5 @@ export function CreatePitchDeck() {
         </motion.div>
       </motion.div>
     </div>
-  )
+  );
 }
-
-

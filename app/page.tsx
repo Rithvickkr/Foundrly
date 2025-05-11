@@ -23,7 +23,7 @@ export default function ProtectedPage() {
 
   if (loading) return <p>Loading...</p>;
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
       <div className="text-2xl">Loading...</div>
     </div>
   );

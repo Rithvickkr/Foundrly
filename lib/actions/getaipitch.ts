@@ -17,7 +17,7 @@ export interface PitchDeckRequest {
   ): Promise<PitchDeckResponse | null> => {
     try {
     const token=await getAuthToken() 
-    console.error("token yeh hai"+token)   // Retrieve JWT token from local storage
+    // console.error("token yeh hai"+token)   // Retrieve JWT token from local storage
       const response = await fetch("http://127.0.0.1:8000/generate-pitch", {
         method: "POST",
         headers: {
