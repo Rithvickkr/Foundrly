@@ -156,75 +156,7 @@ export default function DashboardHome() {
           </Card>
         </motion.div>
 
-        {/* AI Insights */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-        >
-          <Card className="bg-gray-800 backdrop-blur-lg border-gray-700 shadow-md rounded-2xl hover:shadow-lg transition-all duration-200">
-            <CardHeader className="px-8 py-8">
-              <CardTitle className="text-2xl font-semibold text-gray-100 flex items-center">
-                <Brain className="w-6 h-6 mr-2 text-teal-500" />
-                AI Insights
-              </CardTitle>
-              <p className="text-base text-gray-400 mt-2">Personalized suggestions to enhance your pitch decks.</p>
-            </CardHeader>
-            <CardContent className="px-8 py-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {aiInsights.map((insight, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gray-700 rounded-lg border border-gray-700 hover:bg-gray-600 hover:-translate-y-1 transition-all duration-200"
-                >
-                  <h4 className="text-base font-semibold text-gray-100">{insight.title}</h4>
-                  <p className="text-sm text-gray-400 mt-1">{insight.description}</p>
-                  <Button
-                    variant="ghost"
-                    className="mt-2 text-indigo-600 hover:bg-gray-600 rounded-lg"
-                    aria-label={`Apply ${insight.title}`}
-                  >
-                    Apply Insight
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Learning Hub */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-        >
-          <Card className="bg-gray-800 backdrop-blur-lg border-gray-700 shadow-md rounded-2xl hover:shadow-lg transition-all duration-200">
-            <CardHeader className="px-8 py-8">
-              <CardTitle className="text-2xl font-semibold text-gray-100 flex items-center">
-                <Book className="w-6 h-6 mr-2 text-teal-500" />
-                Learning Hub
-              </CardTitle>
-              <p className="text-base text-gray-400 mt-2">Resources to craft compelling pitch decks.</p>
-            </CardHeader>
-            <CardContent className="px-8 py-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {learningHub.map((resource, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gray-700 rounded-lg border border-gray-700 hover:bg-gray-600 hover:-translate-y-1 transition-all duration-200"
-                >
-                  <h4 className="text-base font-semibold text-gray-100">{resource.title}</h4>
-                  <p className="text-sm text-gray-400 mt-1">{resource.description}</p>
-                  <Button
-                    variant="ghost"
-                    className="mt-2 text-indigo-600 hover:bg-gray-600 rounded-lg"
-                    aria-label={`Explore ${resource.title}`}
-                  >
-                    Explore
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
+        
 
         {/* AI Chat Assistant */}
         <div className="fixed bottom-6 right-6 z-30">

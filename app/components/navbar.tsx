@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 import { Sidebar, Sun, Moon } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -54,16 +55,36 @@ export function Navbar() {
         >
           <Sidebar className="h-6 w-6" />
         </Button>
-        <Button
-          variant="ghost"
-          onClick={handleThemeChange}
-          className="p-2 rounded-full text-blue-600 dark:text-teal-400 hover:bg-blue-100 dark:hover:bg-teal-900/50 hover:text-blue-800 dark:hover:text-teal-200 transition-all duration-200 ease-in-out transform hover:scale-110"
-          aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-        >
-          {theme === "light" ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
-        </Button>
       </div>
       <div className="flex items-center space-x-3">
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: 15 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
+          <Button
+            variant="ghost"
+            onClick={handleThemeChange}
+            className="p-2 rounded-full text-blue-600 dark:text-teal-400 hover:bg-blue-100 dark:hover:bg-teal-900/50 hover:text-blue-800 dark:hover:text-teal-200 transition-all duration-200 ease-in-out"
+            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={theme}
+                initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
+                animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                {theme === "light" ? (
+                  <Sun className="h-6 w-6" />
+                ) : (
+                  <Moon className="h-6 w-6" />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </Button>
+        </motion.div>
         {user ? (
           <Button
             variant="ghost"

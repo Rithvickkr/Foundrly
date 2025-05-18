@@ -17,6 +17,7 @@ import "reveal.js/dist/theme/white.css";
 import { jsPDF } from "jspdf";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAuthToken } from "@/lib/actions/getauthtoken";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Dynamically import TinyMCE to avoid SSR issues
 const Editor = dynamic(() => import("@tinymce/tinymce-react").then((mod) => mod.Editor), { ssr: false });
@@ -53,9 +54,20 @@ const LAYOUTS = {
             init={{
               inline: true,
               menubar: false,
-              plugins: ["lists link"],
+              plugins: ["lists", "link"], // Fixed: Use array for plugins
               toolbar: "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist",
-              content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${titleFontSize || "2.5rem"}; text-align: center; }`,
+              content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${titleFontSize || "2.5rem"}; text-align: center; }`,
+              setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                editor.on("init", () => {
+                  console.log("TinyMCE initialized for title editor (title-only)");
+                });
+                editor.on("error", (...args: any[]) => {
+                  const [err] = args;
+                  if (err) {
+                    console.error("TinyMCE error in title editor (title-only):", err);
+                  }
+                });
+              },
             }}
             apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
           />
@@ -68,7 +80,7 @@ const LAYOUTS = {
           </h2>
         )}
         {slide.content && (
-          <div className="mt-4" style={{ marginTop: textBoxSpacing || "1rem" }}>
+          <div key={`spacing-${textBoxSpacing}`} style={{ marginTop: textBoxSpacing || "1rem" }}>
             {isEditable ? (
               <Editor
                 key={`content-${contentFontSize}`}
@@ -77,14 +89,48 @@ const LAYOUTS = {
                 init={{
                   inline: true,
                   menubar: false,
-                  plugins: ["advlist autolink lists link image charmap preview anchor", "searchreplace visualblocks code fullscreen", "insertdatetime media table paste code help wordcount"],
+                  plugins: [
+                    "advlist",
+                    "autolink",
+                    "lists",
+                    "link",
+                    "image",
+                    "charmap",
+                    "preview",
+                    "anchor",
+                    "searchreplace",
+                    "visualblocks",
+                    "code",
+                    "fullscreen",
+                    "insertdatetime",
+                    "media",
+                    "table",
+                    "paste",
+                    "code",
+                    "help",
+                    "progenix",
+                    "wordcount",
+                  ], // Fixed: Use array for plugins
                   toolbar:
                     "undo redo | formatselect | fontselect fontsizeselect | " +
                     "bold italic underline | alignleft aligncenter alignright alignjustify | " +
                     "bullist numlist outdent indent | link image | removeformat | help",
                   font_formats: FONTS.join(";"),
                   fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
-                  content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; text-align: center; }`,
+                  content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; text-align: center; }`,
+                  setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                    editor.on("init", () => {
+                      console.log("TinyMCE initialized for content editor (title-only)");
+                    });
+                    editor.on("error", (...args: any[]) => {
+                      const [err] = args;
+                      if (err) {
+                        console.error("TinyMCE error in content editor (title-only):", err);
+                      } else {
+                        console.error("TinyMCE error in content editor (title-only): Unknown error");
+                      }
+                    });
+                  },
                 }}
                 apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
               />
@@ -120,9 +166,22 @@ const LAYOUTS = {
             init={{
               inline: true,
               menubar: false,
-              plugins: ["lists link"],
+              plugins: ["lists", "link"], // Fixed: Use array for plugins
               toolbar: "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist",
-              content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${titleFontSize || "2rem"}; text-align: center; }`,
+              content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${titleFontSize || "2rem"}; text-align: center; }`,
+              setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                editor.on("init", () => {
+                  console.log("TinyMCE initialized for title editor (title-content)");
+                });
+                editor.on("error", (...args: any[]) => {
+                  const [err] = args;
+                  if (err) {
+                    console.error("TinyMCE error in title editor (title-content):", err);
+                  } else {
+                    console.error("TinyMCE error in title editor (title-content): Unknown error");
+                  }
+                });
+              },
             }}
             apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
           />
@@ -134,33 +193,67 @@ const LAYOUTS = {
             {slide.title}
           </h2>
         )}
-        {isEditable ? (
-          <Editor
-            key={`content-${contentFontSize}`}
-            value={slide.content}
-            onEditorChange={(content) => onContentChange && onContentChange(content)}
-            init={{
-              inline: true,
-              menubar: false,
-              plugins: ["advlist autolink lists link image charmap preview anchor", "searchreplace visualblocks code fullscreen", "insertdatetime media table paste code help wordcount"],
-              toolbar:
-                "undo redo | formatselect | fontselect fontsizeselect | " +
-                "bold italic underline | alignleft aligncenter alignright alignjustify | " +
-                "bullist numlist outdent indent | link image | removeformat | help",
-              font_formats: FONTS.join(";"),
-              fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
-              content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
-            }}
-            apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
-            style={{ marginTop: textBoxSpacing || "1rem" }}
-          />
-        ) : (
-          <div
-            className="flex-1 text-center"
-            dangerouslySetInnerHTML={{ __html: slide.content }}
-            style={{ fontFamily: slide.fontFamily, fontSize: "1rem", marginTop: "1rem" }}
-          />
-        )}
+        <div key={`spacing-${textBoxSpacing}`} style={{ marginTop: textBoxSpacing || "1rem" }}>
+          {isEditable ? (
+            <Editor
+              key={`content-${contentFontSize}`}
+              value={slide.content}
+              onEditorChange={(content) => onContentChange && onContentChange(content)}
+              init={{
+                inline: true,
+                menubar: false,
+                plugins: [
+                  "advlist",
+                  "autolink",
+                  "lists",
+                  "link",
+                  "image",
+                  "charmap",
+                  "preview",
+                  "anchor",
+                  "searchreplace",
+                  "visualblocks",
+                  "code",
+                  "fullscreen",
+                  "insertdatetime",
+                  "media",
+                  "table",
+                  "paste",
+                  "code",
+                  "help",
+                  "wordcount",
+                ], // Fixed: Use array for plugins
+                toolbar:
+                  "undo redo | formatselect | fontselect fontsizeselect | " +
+                  "bold italic underline | alignleft aligncenter alignright alignjustify | " +
+                  "bullist numlist outdent indent | link image | removeformat | help",
+                font_formats: FONTS.join(";"),
+                fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
+                content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
+                setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                  editor.on("init", () => {
+                    console.log("TinyMCE initialized for content editor (title-content)");
+                  });
+                  editor.on("error", (...args: any[]) => {
+                    const [err] = args;
+                    if (err) {
+                      console.error("TinyMCE error in content editor (title-content):", err);
+                    } else {
+                      console.error("TinyMCE error in content editor (title-content): Unknown error");
+                    }
+                  });
+                },
+              }}
+              apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
+            />
+          ) : (
+            <div
+              className="flex-1 text-center"
+              dangerouslySetInnerHTML={{ __html: slide.content }}
+              style={{ fontFamily: slide.fontFamily, fontSize: "1rem" }}
+            />
+          )}
+        </div>
       </div>
     ),
   },
@@ -184,9 +277,22 @@ const LAYOUTS = {
             init={{
               inline: true,
               menubar: false,
-              plugins: ["lists link"],
+              plugins: ["lists", "link"], // Fixed: Use array for plugins
               toolbar: "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist",
-              content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${titleFontSize || "2rem"}; text-align: center; }`,
+              content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${titleFontSize || "2rem"}; text-align: center; }`,
+              setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                editor.on("init", () => {
+                  console.log("TinyMCE initialized for title editor (two-content)");
+                });
+                editor.on("error", (...args: any[]) => {
+                  const [err] = args;
+                  if (err) {
+                    console.error("TinyMCE error in title editor (two-content):", err);
+                  } else {
+                    console.error("TinyMCE error in title editor (two-content): Unknown error");
+                  }
+                });
+              },
             }}
             apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
           />
@@ -198,47 +304,117 @@ const LAYOUTS = {
             {slide.title}
           </h2>
         )}
-        <div className="flex flex-row flex-1" style={{ gap: textBoxSpacing || "1rem", marginTop: textBoxSpacing || "1rem" }}>
+        <div
+          key={`spacing-${textBoxSpacing}`}
+          className="flex flex-row flex-1"
+          style={{ gap: textBoxSpacing || "1rem", marginTop: textBoxSpacing || "1rem" }}
+        >
           {isEditable ? (
             <>
-              <Editor
-                key={`content-left-${contentFontSize}`}
-                value={slide.content}
-                onEditorChange={(content) => onContentChange && onContentChange(content)}
-                init={{
-                  inline: true,
-                  menubar: false,
-                  plugins: ["advlist autolink lists link image charmap preview anchor", "searchreplace visualblocks code fullscreen", "insertdatetime media table paste code help wordcount"],
-                  toolbar:
-                    "undo redo | formatselect | fontselect fontsizeselect | " +
-                    "bold italic underline | alignleft aligncenter alignright alignjustify | " +
-                    "bullist numlist outdent indent | link image | removeformat | help",
-                  font_formats: FONTS.join(";"),
-                  fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
-                  content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
-                }}
-                apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
-                className="w-1/2"
-              />
-              <Editor
-                key={`content-right-${contentFontSize}`}
-                value={slide.content}
-                onEditorChange={(content) => onContentChange && onContentChange(content)}
-                init={{
-                  inline: true,
-                  menubar: false,
-                  plugins: ["advlist autolink lists link image charmap preview anchor", "searchreplace visualblocks code fullscreen", "insertdatetime media table paste code help wordcount"],
-                  toolbar:
-                    "undo redo | formatselect | fontselect fontsizeselect | " +
-                    "bold italic underline | alignleft aligncenter alignright alignjustify | " +
-                    "bullist numlist outdent indent | link image | removeformat | help",
-                  font_formats: FONTS.join(";"),
-                  fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
-                  content_style: `body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
-                }}
-                apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
-                className="w-1/2"
-              />
+              <div className="w-1/2">
+                <Editor
+                  key={`content-left-${contentFontSize}`}
+                  value={slide.content}
+                  onEditorChange={(content) => onContentChange && onContentChange(content)}
+                  init={{
+                    inline: true,
+                    menubar: false,
+                    plugins: [
+                      "advlist",
+                      "autolink",
+                      "lists",
+                      "link",
+                      "image",
+                      "charmap",
+                      "preview",
+                      "anchor",
+                      "searchreplace",
+                      "visualblocks",
+                      "code",
+                      "fullscreen",
+                      "insertdatetime",
+                      "media",
+                      "table",
+                      "paste",
+                      "code",
+                      "help",
+                      "wordcount",
+                    ], // Fixed: Use array for plugins
+                    toolbar:
+                      "undo redo | formatselect | fontselect fontsizeselect | " +
+                      "bold italic underline | alignleft aligncenter alignright alignjustify | " +
+                      "bullist numlist outdent indent | link image | removeformat | help",
+                    font_formats: FONTS.join(";"),
+                    fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
+                    content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
+                    setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                      editor.on("init", () => {
+                        console.log("TinyMCE initialized for left content editor (two-content)");
+                      });
+                      editor.on("error", (err = null) => {
+                        if (err) {
+                          console.error("TinyMCE error in left content editor (two-content):", err);
+                        } else {
+                          console.error("TinyMCE error in left content editor (two-content): Unknown error");
+                        }
+                      });
+                    },
+                  }}
+                  apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
+                />
+              </div>
+              <div className="w-1/2">
+                <Editor
+                  key={`content-right-${contentFontSize}`}
+                  value={slide.content}
+                  onEditorChange={(content) => onContentChange && onContentChange(content)}
+                  init={{
+                    inline: true,
+                    menubar: false,
+                    plugins: [
+                      "advlist",
+                      "autolink",
+                      "lists",
+                      "link",
+                      "image",
+                      "charmap",
+                      "preview",
+                      "anchor",
+                      "searchreplace",
+                      "visualblocks",
+                      "code",
+                      "fullscreen",
+                      "insertdatetime",
+                      "media",
+                      "table",
+                      "paste",
+                      "code",
+                      "help",
+                      "wordcount",
+                    ], // Fixed: Use array for plugins
+                    toolbar:
+                      "undo redo | formatselect | fontselect fontsizeselect | " +
+                      "bold italic underline | alignleft aligncenter alignright alignjustify | " +
+                      "bullist numlist outdent indent | link image | removeformat | help",
+                    font_formats: FONTS.join(";"),
+                    fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
+                    content_style: `.mce-content-body { font-family: ${slide.fontFamily || "Inter"}; font-size: ${contentFontSize || "1rem"}; }`,
+                    setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                      editor.on("init", () => {
+                        console.log("TinyMCE initialized for right content editor (two-content)");
+                      });
+                      editor.on("error", (err?: any) => {
+                        if (err) {
+                          console.error("TinyMCE error in right content editor (two-content):", err);
+                        } else {
+                          console.error("TinyMCE error in right content editor (two-content): Unknown error");
+                        }
+                      });
+                    },
+                  }}
+                  apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
+                />
+              </div>
             </>
           ) : (
             <>
@@ -273,6 +449,21 @@ const FONTS = [
   "Verdana",
 ];
 
+// CSS reset for non-slide elements
+const globalStyles = `
+  .sidebar, .sidebar *, header, header *, h1, h2:not(.slide-content), label, input, select, button {
+    font-size: inherit !important;
+  }
+  .slide-content {
+    font-size: inherit;
+  }
+`;
+
+// Inject global styles
+const GlobalStyles = () => (
+  <style jsx global>{globalStyles}</style>
+);
+
 export function PitchDeckPlayground() {
   const isMobile = useIsMobile();
   const router = useRouter();
@@ -291,7 +482,7 @@ export function PitchDeckPlayground() {
     secondaryColor: "#8b5cf6",
     accentColor: "#f97316",
     fontFamily: "Inter",
-    titleFontSize: "2.5rem", // Consistent with title-only default
+    titleFontSize: "2.5rem",
     contentFontSize: "1rem",
     textBoxSpacing: "1rem",
     animationSpeed: 0.5,
@@ -310,24 +501,32 @@ export function PitchDeckPlayground() {
             revealRef.current.destroy();
             revealRef.current = null;
           }
-          // Ensure DOM is ready
-          const revealContainer = document.querySelector(".reveal") as HTMLElement;
-          if (!revealContainer) {
-            console.error("Reveal.js container not found");
-            return;
-          }
-          revealRef.current = new Reveal(revealContainer, {
-            hash: true,
-            transition: designSettings.slideTransition as "slide" | "none" | "fade" | "convex" | "concave" | "zoom" | undefined,
-            transitionSpeed: designSettings.animationSpeed <= 0.3 ? "slow" : designSettings.animationSpeed >= 0.7 ? "fast" : "default",
-            width: containerSize.width,
-            height: containerSize.height,
-            center: true,
-            controls: true,
-            progress: true,
-          });
-          await revealRef.current.initialize();
-          console.log("Reveal.js initialized successfully");
+          // Log slides for debugging
+          console.log("Slides for presentation:", slides);
+          // Delay to ensure DOM readiness
+          setTimeout(() => {
+            const revealContainer = document.querySelector(".reveal") as HTMLElement;
+            if (!revealContainer) {
+              console.error("Reveal.js container not found");
+              setError("Presentation mode failed: container not found");
+              return;
+            }
+            // Log rendered HTML
+            console.log("Rendered slides HTML:", revealContainer.innerHTML);
+            revealRef.current = new Reveal(revealContainer, {
+              hash: true,
+              transition: designSettings.slideTransition as "slide" | "none" | "fade" | "convex" | "concave" | "zoom" | undefined,
+              transitionSpeed: designSettings.animationSpeed <= 0.3 ? "slow" : designSettings.animationSpeed >= 0.7 ? "fast" : "default",
+              width: containerSize.width,
+              height: containerSize.height,
+              center: true,
+              controls: true,
+              progress: true,
+            });
+            revealRef.current.initialize().then(() => {
+              console.log("Reveal.js initialized successfully");
+            });
+          }, 100);
         } catch (err) {
           console.error("Error initializing Reveal.js:", err);
           setError("Failed to initialize presentation mode");
@@ -353,7 +552,7 @@ export function PitchDeckPlayground() {
     const handleResize = () => {
       const container = document.getElementById("pitch-preview-container");
       if (container) {
-        const width = Math.min(container.offsetWidth, 800); // Cap width for centering
+        const width = Math.min(container.offsetWidth, 800);
         const height = width * 0.5625; // 16:9 aspect ratio
         setContainerSize({ width, height: Math.min(height, window.innerHeight * 0.7) });
       }
@@ -420,7 +619,6 @@ export function PitchDeckPlayground() {
 
         let parsedSlides: any[];
 
-        // Handle case where data.slides is a string (wrapped in ```json ... ```)
         if (typeof data.slides === "string") {
           try {
             const cleanedSlides = stripCodeBlockMarkers(data.slides);
@@ -432,12 +630,10 @@ export function PitchDeckPlayground() {
           parsedSlides = data.slides;
         }
 
-        // Validate that parsedSlides is an array of objects with title and content
         if (!Array.isArray(parsedSlides) || parsedSlides.some((slide: any) => !slide.title)) {
           throw new Error("Invalid slides format: Expected an array of objects with title and content");
         }
 
-        // Initialize slides with default layout and font, ensuring content is not empty
         setSlides(
           parsedSlides.map((slide: any) => ({
             title: slide.title,
@@ -448,7 +644,6 @@ export function PitchDeckPlayground() {
             layout: "title-content" as "title-content",
           }))
         );
-        toast({ title: "Slides Generated", description: "Successfully fetched slides from AI." });
       } else {
         setError(data.error || "Failed to generate slides");
         toast({ title: "Error", description: data.error || "Failed to generate slides", variant: "destructive" });
@@ -490,12 +685,10 @@ export function PitchDeckPlayground() {
       doc.setFontSize(20);
       doc.text(slide.title, 10, 20);
       doc.setFontSize(12);
-      // Strip HTML tags and clean up content for PDF
       const content = slide.content
-        .replace(/<[^>]+>/g, "") // Remove HTML tags
-        .replace(/\s+/g, " ") // Normalize whitespace
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
         .trim();
-      // Split content into lines to wrap text properly
       const lines = doc.splitTextToSize(content, 180);
       doc.text(lines, 10, 40);
     });
@@ -523,7 +716,58 @@ export function PitchDeckPlayground() {
 
   // Render slide in edit or preview mode
   const renderSlide = () => {
-    if (slides.length === 0) return <p className="text-center text-gray-500">No slides available. Generate slides to start.</p>;
+    if (isGenerating) {
+      return (
+        <motion.div
+          className="flex flex-col items-center justify-center w-full h-[450px] text-gray-500 dark:text-gray-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            className="relative h-16 w-16"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <motion.div
+              className="absolute inset-0 border-4 border-gray-300 dark:border-gray-600 border-t-gray-500 dark:border-t-gray-400 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute top-0 left-1/2 h-3 w-3 bg-gray-500 dark:bg-gray-400 rounded-full -translate-x-1/2"
+              animate={{ y: [0, -20, 0], rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-0 left-1/2 h-3 w-3 bg-gray-500 dark:bg-gray-400 rounded-full -translate-x-1/2"
+              animate={{ y: [0, 20, 0], rotate: 360 }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            />
+          </motion.div>
+          <motion.p
+            className="mt-4 text-lg font-medium"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Generating Slides...
+          </motion.p>
+        </motion.div>
+      );
+    }
+
+    if (slides.length === 0) {
+      return (
+        <motion.p
+          className="text-center text-gray-500 dark:text-gray-400"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          No slides available. Generate slides to start.
+        </motion.p>
+      );
+    }
 
     const slide = slides[currentSlide];
     const bgColor = slide.background || "#ffffff";
@@ -531,10 +775,16 @@ export function PitchDeckPlayground() {
     const layout = slide.layout || "title-content";
 
     return (
-      <div className="flex justify-center items-center w-full">
+      <motion.div
+        className="flex justify-center items-center w-full"
+        key={`slide-${currentSlide}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card
           id={`slide-${currentSlide}`}
-          className="relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out shadow-md max-w-[800px]"
+          className="relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out shadow-md max-w-[800px] slide-content"
           style={{
             width: containerSize.width,
             height: containerSize.height,
@@ -548,7 +798,7 @@ export function PitchDeckPlayground() {
         >
           {LAYOUTS[layout].render(
             slide,
-            true, // Enable editing in preview
+            true,
             (content) => updateSlideContent(currentSlide, "title", content),
             (content) => updateSlideContent(currentSlide, "content", content),
             designSettings.titleFontSize,
@@ -562,43 +812,51 @@ export function PitchDeckPlayground() {
             {currentSlide + 1}/{slides.length}
           </div>
         </Card>
-      </div>
+      </motion.div>
     );
   };
 
   // Render presentation mode with Reveal.js
-  const renderPresentation = () => (
-    <div className="flex justify-center items-center w-full h-full">
-      <div className="reveal max-w-[800px]">
-        <div className="slides">
-          {slides.map((slide, index) => (
-            <section
-              key={index}
-              style={{
-                backgroundColor: slide.background || "#ffffff",
-                backgroundImage: designSettings.backgroundImage ? `url(${designSettings.backgroundImage})` : undefined,
-                backgroundSize: "cover",
-                fontFamily: slide.fontFamily || designSettings.fontFamily,
-                padding: "20px",
-                width: containerSize.width,
-                height: containerSize.height,
-              }}
-            >
-              {LAYOUTS[slide.layout || "title-content"].render(slide, false)}
-            </section>
-          ))}
+  const renderPresentation = () => {
+    console.log("Rendering presentation with slides:", slides);
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <div className="reveal max-w-[800px]">
+          <div className="slides">
+            {slides.map((slide, index) => {
+              const layout = slide.layout || "title-content";
+              console.log(`Rendering slide ${index}:`, slide);
+              return (
+                <section
+                  key={index}
+                  style={{
+                    backgroundColor: slide.background || "#ffffff",
+                    backgroundImage: designSettings.backgroundImage ? `url(${designSettings.backgroundImage})` : undefined,
+                    backgroundSize: "cover",
+                    fontFamily: slide.fontFamily || designSettings.fontFamily,
+                    padding: "20px",
+                    width: containerSize.width,
+                    height: containerSize.height,
+                  }}
+                >
+                  {LAYOUTS[layout].render(slide, false)}
+                </section>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <SidebarProvider>
-      <div className="flex flex-col min-h-screen bg-background">
+      <GlobalStyles />
+      <div className="flex-1 flex-col min-h-screen  bg-gray-100 dark:bg-gray-900">
         <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center px-4 md:px-6">
             <div className="flex items-center gap-2 font-semibold">
-              <Palette size={24} className="text-gray-800 dark:text-gray-200 ml-7" />
+              <Palette size={24} className="text-gray-800 dark:text-gray-200 md:ml-71" />
               <span>Pitch Deck Playground</span>
             </div>
           </div>
@@ -606,7 +864,7 @@ export function PitchDeckPlayground() {
 
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
-            className="min-w-[300px] max-w-[300px] bg-gray-50 dark:bg-gray-800 shadow-sm border-r rounded-r-lg"
+            className="min-w-[300px] max-w-[300px] bg-gray-50 dark:bg-gray-800 shadow-sm border-r rounded-r-lg sidebar"
           >
             <SidebarHeader className="border px-4 py-2">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Slide Editor</h2>
@@ -792,10 +1050,26 @@ export function PitchDeckPlayground() {
                             height: 300,
                             menubar: true,
                             plugins: [
-                              "advlist autolink lists link image charmap print preview anchor",
-                              "searchreplace visualblocks code fullscreen",
-                              "insertdatetime media table paste code help wordcount",
-                            ],
+                              "advlist",
+                              "autolink",
+                              "lists",
+                              "link",
+                              "image",
+                              "charmap",
+                              "preview",
+                              "anchor",
+                              "searchreplace",
+                              "visualblocks",
+                              "code",
+                              "fullscreen",
+                              "insertdatetime",
+                              "media",
+                              "table",
+                              "paste",
+                              "code",
+                              "help",
+                              "wordcount",
+                            ], // Fixed: Use array for plugins
                             toolbar:
                               "undo redo | formatselect | fontselect fontsizeselect | " +
                               "bold italic underline | alignleft aligncenter alignright alignjustify | " +
@@ -803,6 +1077,14 @@ export function PitchDeckPlayground() {
                             font_formats: FONTS.join(";"),
                             fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
                             content_style: `body { font-family: ${slide.fontFamily || designSettings.fontFamily}; }`,
+                            setup: (editor: { on: (arg0: string, arg1: { (): void; (err: any): void; }) => void; }) => {
+                              editor.on("init", () => {
+                                console.log(`TinyMCE initialized for slide content editor (slide ${index + 1})`);
+                              });
+                              editor.on("error", (err = null) => {
+                                console.error(`TinyMCE error in slide content editor (slide ${index + 1}):`, err);
+                              });
+                            },
                           }}
                           apiKey="v31jdsle08zrmxiz0jkp99x1k7xph3sdxml6ya1ws3k2ak5p"
                         />
@@ -850,7 +1132,7 @@ export function PitchDeckPlayground() {
             </SidebarContent>
           </Sidebar>
 
-          <main className="flex-1 overflow-auto p-4 md:p-6 -ml-30">
+          <main className="flex-1 overflow-auto p-4 md:p-6 ">
             <div className="flex justify-center items-start w-full mt-5">
               <div className="w-full max-w-5xl space-y-6 bg-amber-300/10 p-4 rounded-lg">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Pitch Deck Preview</h1>
@@ -862,58 +1144,74 @@ export function PitchDeckPlayground() {
                 {isPresenting ? renderPresentation() : renderSlide()}
                 {!isPresenting && (
                   <div className="flex justify-center gap-2 mt-4">
-                    <Button variant="outline" size="icon" onClick={prevSlide} disabled={currentSlide === 0}>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={nextSlide}
-                      disabled={currentSlide === slides.length - 1}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+                    <motion.div whileHover={{ scale: 1.05, rotate: 2 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={prevSlide}
+                        disabled={currentSlide === 0}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05, rotate: -2 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={nextSlide}
+                        disabled={currentSlide === slides.length - 1}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                  <Button onClick={fetchSlides} className="flex items-center gap-2" disabled={isGenerating}>
-                    <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
-                    {isGenerating ? "Generating..." : "Generate Slides"}
-                  </Button>
-                  <Button
-                    onClick={() => setIsPresenting(!isPresenting)}
-                    className="flex items-center gap-2"
-                    variant="outline"
-                  >
-                    <Palette className="h-4 w-4" />
-                    {isPresenting ? "Edit Mode" : "Present Slides"}
-                  </Button>
-                  <Button onClick={handleDownload} className="flex items-center gap-2" variant="outline">
-                    <Download className="h-4 w-4" />
-                    Download PDF
-                  </Button>
-                  <Button onClick={handleVoiceover} className="flex items-center gap-2" variant="outline">
-                    <Mic className="h-4 w-4" />
-                    Generate Voiceover
-                  </Button>
-                  <Button
-                    onClick={() => toast({ title: "Saved", description: "Slides saved locally." })}
-                    className="flex items-center gap-2"
-                    variant="outline"
-                  >
-                    <Save className="h-4 w-4" />
-                    Save Slides
-                  </Button>
-                  <Button
-                    onClick={handleSlideAnalysis}
-                    className="flex items-center gap-2"
-                    variant="outline"
-                  >
-                    <BarChart2 className="h-4 w-4" />
-                    Slide Analysis
-                  </Button>
-                </div>
+                <motion.div
+                  className="grid-cols-2 md:grid-cols-6  gap-4 mt-4 flex "
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ staggerChildren: 0.1 }}
+                >
+                  <motion.div whileHover={{ scale: 1.05, rotate: 2 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Button onClick={fetchSlides} className="flex items-center gap-2" disabled={isGenerating}>
+                      <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
+                      {isGenerating ? "Generating..." : "Generate Slides"}
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05, rotate: 2 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Button
+                      onClick={() => setIsPresenting(!isPresenting)}
+                      className="flex items-center gap-2"
+                      variant="outline"
+                    >
+                      <Palette className="h-4 w-4" />
+                      {isPresenting ? "Edit Mode" : "Present Slides"}
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05, rotate: 2 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Button onClick={handleDownload} className="flex items-center gap-2" variant="outline">
+                      <Download className="h-4 w-4" />
+                      Download PDF
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05, rotate: 2 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Button onClick={handleVoiceover} className="flex items-center gap-2" variant="outline">
+                      <Mic className="h-4 w-4" />
+                      Generate Voiceover
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05, rotate: 2 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <Button
+                      onClick={() => toast({ title: "Saved", description: "Slides saved locally." })}
+                      className="flex items-center gap-2"
+                      variant="outline"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save Slides
+                    </Button>
+                  </motion.div>
+                </motion.div>
               </div>
             </div>
           </main>
