@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getAuthToken } from '@/lib/actions/getauthtoken';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, Send, Plus, ChevronLeft, 
   ChevronRight, Calendar, ArrowLeft, Trash2,
-  AlertCircle, MoreHorizontal, Lightbulb,
-  Copy, CheckCircle, Moon, Sun, Download,
-  Sparkles, Brain, MessageCircle, Rocket,
-  Save, Share, Star
+  MoreHorizontal, Lightbulb, Copy, CheckCircle,
+  Download, Sparkles, Brain, MessageCircle, Rocket,
+  Star, X
 } from 'lucide-react';
 
 // Typography for AI Co-founder persona
@@ -18,25 +17,25 @@ const personas = [
   { 
     id: 'strategic',
     name: 'Strategic Advisor', 
-    icon: <Brain className="text-purple-500" size={18} />,
+    icon: <Brain className="text-purple-500 dark:text-purple-400" size={18} />,
     description: 'Focuses on business strategy and planning'
   },
   { 
     id: 'analytical', 
     name: 'Analytical Mind', 
-    icon: <Lightbulb className="text-yellow-500" size={18} />,
+    icon: <Lightbulb className="text-yellow-500 dark:text-yellow-400" size={18} />,
     description: 'Data-driven insights and market analysis'
   },
   { 
     id: 'creative', 
     name: 'Creative Innovator', 
-    icon: <Sparkles className="text-pink-500" size={18} />,
+    icon: <Sparkles className="text-pink-500 dark:text-pink-400" size={18} />,
     description: 'Helps with brainstorming and creative solutions'
   },
   { 
     id: 'supportive', 
     name: 'Supportive Partner', 
-    icon: <MessageCircle className="text-green-500" size={18} />,
+    icon: <MessageCircle className="text-green-500 dark:text-green-400" size={18} />,
     description: 'Serves as a sounding board and motivator'
   }
 ];
@@ -81,7 +80,7 @@ interface CofounderChatProps {
 
 export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
   // State management
-  const [userMessage, setUserMessage] = useState('');
+  const [userMessage, setUserMessage ] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [savedChats, setSavedChats] = useState<Chat[]>([]);
@@ -89,10 +88,10 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [displayText, setDisplayText] = useState<{[key: string]: string}>({});
-  const [typingSpeed] = useState(20);
+  const [wordIndices, setWordIndices] = useState<{[key: string]: number}>({});
+  const [typingSpeed] = useState(100); // Adjusted for word-by-word (ms per word)
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [activeCategory, setActiveCategory] = useState('strategy');
@@ -100,42 +99,18 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
   const [showPersonaTooltip, setShowPersonaTooltip] = useState(false);
   const [starredMessages, setStarredMessages] = useState<string[]>([]);
   const [showStarredPanel, setShowStarredPanel] = useState(false);
-  const [showChatOptions, setShowChatOptions] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState<string | null>(null);
-  const [newTitle, setNewTitle] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Refs
   const historyRef = useRef<Message[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const params = useParams();
-  const router = useRouter();
   const pitchId = params.pitchid as string;
 
   // Use pitchId if pitchDeckId isn't provided externally
   const effectivePitchDeckId = pitchDeckId || pitchId;
-
-  // Check for dark mode preference
-  useEffect(() => {
-    const savedPreference = localStorage.getItem('darkMode');
-    if (savedPreference !== null) {
-      setDarkMode(savedPreference === 'true');
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(prefersDark);
-    }
-  }, []);
-
-  // Apply dark mode to document
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', darkMode.toString());
-  }, [darkMode]);
 
   // Effects
   useEffect(() => {
@@ -145,40 +120,44 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
     }
   }, [messages, displayText]);
 
-  // Typewriter effect for AI responses
+  // Typewriter effect for AI responses (word-by-word)
   useEffect(() => {
     const typingMessages = messages.filter(msg => 
       msg.role === 'cofounder' && 
       !msg.typing && 
-      (!displayText[msg.id] || displayText[msg.id].length < msg.content.length)
+      wordIndices[msg.id] !== undefined && 
+      wordIndices[msg.id] < msg.content.split(/\s+/).length
     );
     
     if (typingMessages.length > 0) {
       const message = typingMessages[0];
-      const currentDisplayText = displayText[message.id] || '';
+      const words = message.content.split(/\s+/);
+      const currentWordIndex = wordIndices[message.id] || 0;
       
-      if (currentDisplayText.length < message.content.length) {
+      if (currentWordIndex < words.length) {
         const timer = setTimeout(() => {
+          const newText = words.slice(0, currentWordIndex + 1).join(' ');
           setDisplayText(prev => ({
             ...prev,
-            [message.id]: message.content.substring(0, currentDisplayText.length + 1)
+            [message.id]: newText
+          }));
+          setWordIndices(prev => ({
+            ...prev,
+            [message.id]: currentWordIndex + 1
           }));
         }, typingSpeed);
         
         return () => clearTimeout(timer);
       }
     }
-  }, [messages, displayText, typingSpeed]);
+  }, [messages, wordIndices, typingSpeed]);
 
   // Check screen size for responsive design
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth < 640);
-      if (window.innerWidth < 640) {
-        setShowSidebar(false);
-      } else {
-        setShowSidebar(true);
-      }
+      const isMobile = window.innerWidth < 768;
+      setIsSmallScreen(isMobile);
+      setShowSidebar(!isMobile);
     };
     
     checkScreenSize();
@@ -197,6 +176,18 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
       setStarredMessages(JSON.parse(saved));
     }
   }, [effectivePitchDeckId]);
+
+  // Handle modal keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (deleteConfirmId && e.key === 'Escape') {
+        setDeleteConfirmId(null);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [deleteConfirmId]);
 
   // Generate unique ID for messages
   const generateId = () => {
@@ -250,13 +241,16 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
       })) as Message[];
       
       const newDisplayText: {[key: string]: string} = {};
+      const newWordIndices: {[key: string]: number} = {};
       formattedMessages.forEach(msg => {
         if (msg.role === 'cofounder') {
           newDisplayText[msg.id] = msg.content;
+          newWordIndices[msg.id] = msg.content.split(/\s+/).length;
         }
       });
       
       setDisplayText(newDisplayText);
+      setWordIndices(newWordIndices);
       setMessages(formattedMessages);
       setActiveChatId(chatId);
       if (isSmallScreen) {
@@ -269,6 +263,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
   const startNewChat = () => {
     setMessages([]);
     setDisplayText({});
+    setWordIndices({});
     setActiveChatId(null);
     setShowSuggestions(true);
     if (isSmallScreen) {
@@ -355,6 +350,11 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
         [placeholderId]: ''
       }));
       
+      setWordIndices(prev => ({
+        ...prev,
+        [placeholderId]: 0
+      }));
+      
       setActiveChatId(data.chat_id);
       fetchSavedChats();
     } catch (err) {
@@ -371,6 +371,11 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
       setDisplayText(prev => ({
         ...prev,
         [placeholderId]: errorMessage
+      }));
+      
+      setWordIndices(prev => ({
+        ...prev,
+        [placeholderId]: errorMessage.split(/\s+/).length
       }));
     } finally {
       setLoading(false);
@@ -422,6 +427,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
       if (activeChatId === chatId) {
         setMessages([]);
         setDisplayText({});
+        setWordIndices({});
         setActiveChatId(null);
         setShowSuggestions(true);
       }
@@ -446,10 +452,6 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
-  };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
   };
 
   const selectSuggestion = (question: string) => {
@@ -488,37 +490,6 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
     URL.revokeObjectURL(url);
   };
 
-  const updateChatTitle = async (chatId: string) => {
-    if (!newTitle.trim()) {
-      setEditingTitle(null);
-      return;
-    }
-    
-    try {
-      const token = await getAuthToken();
-      const response = await fetch(`http://127.0.0.1:8000/cofounder/chats/${chatId}/title`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ title: newTitle.trim() })
-      });
-      
-      if (!response.ok) throw new Error('Failed to update title');
-      
-      setSavedChats(savedChats.map(chat => 
-        chat.id === chatId ? {
-
- ...chat, title: newTitle.trim() } : chat
-      ));
-      
-      setEditingTitle(null);
-    } catch (error) {
-      console.error('Error updating chat title:', error);
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -544,21 +515,21 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
   };
 
   return (
-    <div className={`w-full h-screen flex flex-col ${darkMode ? 'dark' : ''} bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-gray-200 overflow-hidden transition-colors duration-300`}>
+    <div className="w-full h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-gray-200 overflow-hidden">
       {/* Header */}
       <header className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             {isSmallScreen && (
               <button 
                 onClick={toggleSidebar}
-                className="mr-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 aria-label="Toggle sidebar"
               >
                 {showSidebar ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
               </button>
             )}
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center">
+            <h1 className="text-lg md:text-xl font-bold flex items-center">
               <span className="text-blue-600 dark:text-blue-400 mr-2">
                 <Rocket size={24} className="animate-pulse" />
               </span>
@@ -568,21 +539,13 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
             </h1>
           </div>
           <div className="flex items-center space-x-3">
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            
             <button 
               onClick={startNewChat}
-              className="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm sm:text-base"
+              className="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm"
               aria-label="New chat"
             >
               <Plus size={16} />
-              <span className="hidden sm:inline">New Chat</span>
+              <span className="hidden md:inline">New Chat</span>
             </button>
           </div>
         </div>
@@ -600,12 +563,12 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className={`${
                 isSmallScreen 
-                  ? 'fixed inset-y-0 left-0 z-20 w-4/5 sm:w-3/5 max-w-sm' 
-                  : 'relative w-64 sm:w-72 lg:w-80'
+                  ? 'fixed inset-y-0 left-0 z-20 w-3/4 max-w-xs' 
+                  : 'relative w-64 md:w-80'
               } border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col shadow-lg`}
             >
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-850">
-                <h2 className="text-sm sm:text-base font-semibold flex items-center">
+              <div className="p-4 border-b dark:bg-gray-800  border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-850">
+                <h2 className="text-sm font-semibold flex items-center">
                   <Calendar size={16} className="mr-2 text-blue-500 dark:text-blue-400" />
                   Conversation History
                 </h2>
@@ -619,7 +582,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                   </button>
                 )}
               </div>
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+              <div className="flex-1 overflow-y-auto p-3">
                 {savedChats.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     <motion.div
@@ -641,123 +604,35 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                         whileTap={{ scale: 0.98 }}
                         className={`relative p-3 rounded-lg border transition-all group ${
                           activeChatId === chat.id 
-                            ? 'border-blue-500 bg-blue-600 text-white rounded-br-sm' 
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md' 
                             : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-750'
                         }`}
                       >
                         <div 
-                          onClick={() => {
-                            setShowChatOptions(null);
-                            loadChat(chat.id);
-                          }}
-                          className="pr-10"
+                          onClick={() => loadChat(chat.id)}
+                          className="pr-8"
                         >
-                          {editingTitle === chat.id ? (
-                            <div className="flex mb-1">
-                              <input
-                                type="text"
-                                value={newTitle}
-                                onChange={(e) => setNewTitle(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateChatTitle(chat.id);
-                                  } else if (e.key === 'Escape') {
-                                    setEditingTitle(null);
-                                  }
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                                className="flex-1 text-sm p-1 border border-blue-400 dark:border-blue-500 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700"
-                                autoFocus
-                              />
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  updateChatTitle(chat.id);
-                                }}
-                                className="ml-1 p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                              >
-                                <Save size={14} />
-                              </button>
-                            </div>
-                          ) : (
-                              <div>
-                                <p className="text-sm font-medium mb-1 truncate">{getPreviewText(chat)}</p>
-                                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                                  <Calendar size={12} className="mr-1" />
-                                  <span>{formatDate(chat.created_at)}</span>
-                                </div>
-                              </div>
-                          )}
+                          <p className="text-sm font-medium mb-1 truncate">{getPreviewText(chat)}</p>
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <Calendar size={12} className="mr-1" />
+                            <span>{formatDate(chat.created_at)}</span>
+                          </div>
                         </div>
-  
-                        {/* Chat Actions (Delete and More) */}
+
+                        {/* Chat Actions (Delete only) */}
                         <div className="absolute right-2 top-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setDeleteConfirmId(chat.id);
                             }}
+
                             className="p-1 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors"
                             aria-label="Delete chat"
                           >
                             <Trash2 size={16} />
                           </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setShowChatOptions(showChatOptions === chat.id ? null : chat.id);
-                              setNewTitle(chat.title || getPreviewText(chat));
-                            }}
-                            className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                            aria-label="More options"
-                          >
-                            <MoreHorizontal size={16} />
-                          </button>
                         </div>
-  
-                        {/* More Options Dropdown */}
-                        {showChatOptions === chat.id && (
-                          <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg p-3 z-20 w-48">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingTitle(chat.id);
-                                setShowChatOptions(null);
-                              }}
-                              className="w-full text-left py-1 px-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                            >
-                              Edit Title
-                            </button>
-                          </div>
-                        )}
-  
-                        {/* Delete Confirmation */}
-                        {deleteConfirmId === chat.id && (
-                          <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg p-3 z-20 w-56 sm:w-64">
-                            <p className="text-xs mb-3">Delete this conversation permanently?</p>
-                            <div className="flex justify-between">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteChat(chat.id);
-                                }}
-                                disabled={isDeleting}
-                                className="py-1 px-3 text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-md transition-colors disabled:opacity-50"
-                              >
-                                {isDeleting ? 'Deleting...' : 'Delete'}
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteConfirmId(null);
-                                }}
-                                className="py-1 px-3 text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        )}
                       </motion.div>
                     ))}
                   </div>
@@ -772,7 +647,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                     className="flex items-center justify-between w-full text-sm font-medium text-gray-700 dark:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-750 rounded-md transition-colors"
                   >
                     <div className="flex items-center">
-                      <Star size={14} className="mr-2 text-yellow-500" />
+                      <Star size={14} className="mr-2 text-yellow-500 dark:text-yellow-400" />
                       <span>Saved Insights</span>
                     </div>
                     <ChevronRight size={16} className={`transition-transform ${showStarredPanel ? 'rotate-90' : ''}`} />
@@ -790,7 +665,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                           {messages.filter(msg => starredMessages.includes(msg.id)).map(msg => (
                             <div 
                               key={`starred-${msg.id}`} 
-                              className="text-xs p-2 bg-gray-50 dark:bg-gray-750 rounded border border-gray-200 dark:border-gray-700"
+                              className="text-xs p-2 bg-gray-50 dark:bg-gray-750 rounded border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200"
                             >
                               <p className="truncate">{msg.content.length > 60 ? msg.content.substring(0, 60) + '...' : msg.content}</p>
                             </div>
@@ -804,10 +679,10 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
               
               {/* Export chat button */}
               {messages.length > 0 && (
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+                <div className="p-3 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                   <button
                     onClick={exportChat}
-                    className="flex items-center justify-center w-full py-2 px-3 bg-gray-100 dark:bg-gray-750 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md text-sm font-medium transition-colors"
+                    className="flex items-center justify-center w-full py-2 px-3 bg-blue-900 dark:bg-gray-750 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md text-sm font-medium transition-colors text-gray-800 dark:text-gray-200 darK:bg-gray-800"
                   >
                     <Download size={14} className="mr-2" />
                     Export Conversation
@@ -833,9 +708,9 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
           
           {/* Persona selector bar */}
           {messages.length > 0 && (
-            <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 flex flex-col sm:flex-row items-start sm:items-center overflow妖x-auto scrollbar-thin">
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 ml-2 mb-2 sm:mb-0 sm:mr-3">Focus:</span>
-              <div className="flex flex-wrap gap-2">
+            <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 flex flex-col items-start overflow-x-auto scrollbar-thin">
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 ml-2 mb-2">Focus:</span>
+              <div className="flex flex-wrap gap-2 px-2">
                 {personas.map(persona => (
                   <button
                     key={persona.id}
@@ -857,21 +732,21 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
           {/* Messages */}
           <div 
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 scroll-smooth"
+            className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-900 scroll-smooth"
           >
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-500 dark:text-gray-400">
+              <div className="h-full flex flex-col items-center justify-center text-center p-4 text-gray-500 dark:text-gray-400">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="max-w-xl"
+                  className="max-w-md"
                 >
                   <div className="bg-gradient-to-r from-blue-400 to-indigo-500 p-6 rounded-2xl mb-6 inline-block shadow-xl">
                     <Rocket size={48} className="text-white" />
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-700 dark:text-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text">Talk with Your AI Co-founder</h3>
-                  <p className="mb-8 max-w-lg mx-auto text-sm sm:text-lg text-gray-600 dark:text-gray-300">Get instant feedback, brainstorm ideas, and strategize your startup's growth with an AI partner built to help you succeed.</p>
+                  <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text">Talk with Your AI Co-founder</h3>
+                  <p className="mb-8 text-sm md:text-base text-gray-600 dark:text-gray-300">Get instant feedback, brainstorm ideas, and strategize your startup's growth with an AI partner built to help you succeed.</p>
                   
                   {showSuggestions && (
                     <motion.div
@@ -883,19 +758,31 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                         <div className="flex flex-wrap justify-center mb-4 gap-2">
                           <button
                             onClick={() => setActiveCategory('strategy')}
-                            className={`px-3 py-1 rounded-full text-sm transition ${activeCategory === 'strategy' ? 'bg-blue-100 text-blue-800 dark:bg-blue... dark:bg-blue-900/30 dark:text-blue-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}
+                            className={`px-3 py-1 rounded-full text-sm transition ${
+                              activeCategory === 'strategy' 
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            }`}
                           >
                             Strategy
                           </button>
                           <button
                             onClick={() => setActiveCategory('funding')}
-                            className={`px-3 py-1 rounded-full text-sm transition ${activeCategory === 'funding' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}
+                            className={`px-3 py-1 rounded-full text-sm transition ${
+                              activeCategory === 'funding' 
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 distance:0 dark:text-blue-300' 
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            }`}
                           >
                             Funding
                           </button>
                           <button
                             onClick={() => setActiveCategory('growth')}
-                            className={`px-3 py-1 rounded-full text-sm transition ${activeCategory === 'growth' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}
+                            className={`px-3 py-1 rounded-full text-sm transition ${
+                              activeCategory === 'growth' 
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            }`}
                           >
                             Growth
                           </button>
@@ -920,7 +807,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                 </motion.div>
               </div>
             ) : (
-              <div className="space-y-6 pb-2">
+              <div className="space-y-4 pb-2">
                 {messages.map((msg) => (
                   <motion.div
                     key={msg.id}
@@ -930,7 +817,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div 
-                      className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm relative group ${
+                      className={`max-w-[90%] md:max-w-[70%] rounded-2xl px-4 py-3 shadow-sm relative group ${
                         msg.role === 'user' 
                           ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-br-sm' 
                           : 'bg-white dark:bg-gray-800 rounded-bl-sm border border-gray-100 dark:border-gray-700'
@@ -949,20 +836,20 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                           <div className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                             <div dangerouslySetInnerHTML={{ 
                               __html: (displayText[msg.id] || '').replace(/\n/g, '<br>') + 
-                                (displayText[msg.id] !== undefined && 
-                                displayText[msg.id].length < msg.content.length ? 
-                                  '<span className="cursor animate-pulse">|</span>' : '')
+                                (wordIndices[msg.id] !== undefined && 
+                                wordIndices[msg.id] < msg.content.split(/\s+/).length ? 
+                                  '<span class="cursor animate-pulse"> |</span>' : '')
                             }} />
                           </div>
                           
-                          {displayText[msg.id] === msg.content && (
+                          {wordIndices[msg.id] >= msg.content.split(/\s+/).length && (
                             <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button 
                                 onClick={() => copyMessageToClipboard(msg.content, msg.id)}
                                 className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
                                 aria-label="Copy message"
                               >
-                                {copiedMessageId === msg.id ? <CheckCircle size={14} className="text-green-500" /> : <Copy size={14} />}
+                                {copiedMessageId === msg.id ? <CheckCircle size= {14} className="text-green-500 dark:text-green-400" /> : <Copy size={14} />}
                               </button>
                               <button 
                                 onClick={() => toggleStarMessage(msg.id, msg.content)} 
@@ -987,7 +874,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                 
                 {messages.length > 0 && messages[messages.length - 1].role === 'cofounder' && 
                  !messages[messages.length - 1].typing && 
-                 displayText[messages[messages.length - 1].id] === messages[messages.length - 1].content && (
+                 wordIndices[messages[messages.length - 1].id] >= messages[messages.length - 1].content.split(/\s+/).length && (
                   <div className="flex justify-center">
                     <span className="text-xs text-gray-400 dark:text-gray-500">Waiting for your message...</span>
                   </div>
@@ -998,7 +885,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
           
           {/* Message Input */}
           <motion.div 
-            className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-6"
+            className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -1007,13 +894,13 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
               <div className="flex-1 relative">
                 <textarea
                   ref={messageInputRef}
-                  className="w-full pl-4 pr-12 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none outline-none transition-all shadow-sm text-sm sm:text-base"
+                  className="w-full pl-4 pr-12 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-white resize-none outline-none transition-all shadow-sm text-sm"
                   rows={1}
                   value={userMessage}
                   onChange={(e) => {
                     setUserMessage(e.target.value);
                     e.target.style.height = 'auto';
-                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`;
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask your AI co-founder anything..."
@@ -1034,6 +921,64 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
           </motion.div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setDeleteConfirmId(null)}
+          >
+            <motion.div
+              ref={modalRef}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-labelledby="delete-modal-title"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 id="delete-modal-title" className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                  Delete Conversation
+                </h3>
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
+                Are you sure you want to delete this conversation? This action cannot be undone.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+                  aria-label="Cancel deletion"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => deleteChat(deleteConfirmId)}
+                  disabled={isDeleting}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Confirm deletion"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Toast Notification */}
       {toast && (
@@ -1126,9 +1071,28 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
           animation: pulse 2s infinite;
         }
         
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .fixed.inset-y-0 {
             z-index: 20;
+          }
+          .max-w-3xl {
+            max-w: 100%;
+          }
+          .text-sm {
+            font-size: 0.875rem;
+          }
+          .text-xs {
+            font-size: 0.75rem;
+          }
+          .rounded-2xl {
+            border-radius: 1rem;
+          }
+          .p-6 {
+            padding: 1rem;
+          }
+          .space-y-6 {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
           }
         }
       `}</style>
