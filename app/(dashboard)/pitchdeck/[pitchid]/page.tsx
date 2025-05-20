@@ -228,7 +228,7 @@ const ContentSectionComponent = memo(
         transition={{ duration: 0.5, delay: 0.3 }}
         className="w-full"
       >
-        <Card className="bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm border-gray-700 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-1">
+        <Card className="bg-gradient-to-br  dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm border-gray-700 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-1">
           <CardHeader
             className={`border-b border-gray-700 px-6 py-8 sm:px-8 bg-gradient-to-r ${headerGradient} to-transparent`}
           >

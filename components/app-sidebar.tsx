@@ -40,13 +40,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { getUser } from "@/lib/actions/getuser";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+ 
   navMain: [
     {
       title: "New Pitch Deck",
@@ -136,6 +133,25 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [activeSection, setActiveSection] = React.useState<string | null>("New Pitch Deck");
   const [expandedSections, setExpandedSections] = React.useState<string[]>([]);
+  const[user, setUser] = React.useState({
+    name: "",
+    email: "",
+    avatar: "",
+  });
+  
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUser();
+      if (user) {
+        
+        setUser({
+          ...user,
+          avatar:  "/avatars/shadcn.jpg" // Add default avatar if not provided
+        });
+      }
+    }
+    fetchUser();
+  }, []);
 
   const toggleSection = (title: string) => {
     setExpandedSections(prev => 
@@ -150,11 +166,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar 
       className=" min-h-screen bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-800 shadow-sm"
-      variant="inset" 
+      variant="sidebar" 
       {...props}
     >
-      <SidebarHeader className="border-b bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-800 py-4 ">
-        <SidebarMenu>
+      <SidebarHeader className="border-b   bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-800 py-4 ">
+        <SidebarMenu className="flex items-center ">
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/home" className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-colors">
@@ -175,7 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="py-4 px-2 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100  shadow-sm">
+      <SidebarContent className="py-4 px-2 border-b  border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100  shadow-sm">
         {/* Custom Nav Implementation */}
         <div className="space-y-6">
           <div className="px-3">
@@ -307,8 +323,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-gray-200 dark:border-gray-800 p-4">
-        <NavUser user={data.user} />
+      <SidebarFooter className="border-t bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-950 border-gray-200 dark:border-gray-800 p-4">
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );
