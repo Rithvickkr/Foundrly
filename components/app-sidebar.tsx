@@ -1,6 +1,7 @@
 "use client";
 
-import * as React from "react";
+import { useEffect , useState } from "react";
+import { getDecks } from "@/lib/actions/getdecks";
 import {
   BookOpen,
   Bot,
@@ -89,19 +90,19 @@ const data = {
       ],
     },
   ],
-  History: [],
+  History: [] as { title: string; url: string; icon: any }[],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [activeSection, setActiveSection] = React.useState<string | null>("New Pitch Deck");
-  const [expandedSections, setExpandedSections] = React.useState<string[]>([]);
-  const[user, setUser] = React.useState({
+  const [activeSection, setActiveSection] = useState<string | null>("New Pitch Deck");
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const[user, setUser] = useState({
     name: "",
     email: "",
     avatar: "",
   });
   
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchUser = async () => {
       const user = await getUser();
       if (user) {
@@ -114,6 +115,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const fetchDecks = async () => {
+      const decks = await getDecks();
+      // Sort decks by date and take only the latest three
+      const sortedDecks = decks ? 
+        [...decks].sort((a, b) => 
+          new Date( b.created_at).getTime() - 
+          new Date( a.created_at).getTime()
+        ).slice(0, 3) : [];
+      if (decks) {
+        data.History = sortedDecks.map(deck => ({
+          title: deck.title,
+          url: `/pitchdeck/${deck.id}`,
+          icon: Presentation,
+        }));
+      }
+    };
+    fetchDecks();
+  }
+  , []);
+  
 
   const toggleSection = (title: string) => {
     setExpandedSections(prev => 
@@ -247,20 +270,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             
             <div className="mt-4 space-y-1">
-              <div className="py-2 px-3 text-gray-500 dark:text-gray-400 text-sm">
-                {data.History.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Clock className="size-10 mb-2 text-gray-400 dark:text-gray-600" />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No recent projects</p>
-                    <button className="mt-3 px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-lg flex items-center gap-1">
-                      <PlusCircle className="size-3.5" />
-                      Create New Project
-                    </button>
-                  </div>
-                ) : (
-                  <NavProjects projects={data.History} />
-                )}
-              </div>
+              {data.History.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-6 text-center bg-gray-50 dark:bg-gray-800/30 rounded-lg">
+                  <Clock className="size-8 mb-2 text-gray-400 dark:text-gray-600" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No recent projects</p>
+                  <button className="mt-3 px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-lg flex items-center gap-1 transition-colors">
+                    <PlusCircle className="size-3.5" />
+                    Create New Project
+                  </button>
+                </div>
+              ) : (
+                <ul className="space-y-1">
+                  {data.History.map((item, index) => (
+                    <li key={index}>
+                      <a
+                        href={item.url}
+                        className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        <item.icon className="size-4 text-gray-500 dark:text-gray-400" />
+                        <span className="truncate">{item.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
