@@ -24,7 +24,8 @@ import {
   FileText,
   User,
   CreditCard,
-  Shield
+  Shield,
+  Presentation
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -51,53 +52,14 @@ const data = {
       icon: SquareTerminal,
     },
     {
-      title: "Generations",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Presentation",
-          url: "#",
-          icon: FileText,
-        },
-        {
-          title: "Pitch Video",
-          url: "#",
-          icon: Video,
-        },
-        {
-          title: "Pitch Audio",
-          url: "#",
-          icon: Headphones,
-        },
-      ],
+      title: "Decks",
+      url: "/decks",
+      icon: Presentation,
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-          icon: Rocket,
-        },
-        {
-          title: "Get Started",
-          url: "#",
-          icon: PlusCircle,
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-          icon: MessageSquare,
-        },
-        {
-          title: "Changelog",
-          url: "#",
-          icon: History,
-        },
-      ],
+      title: "CoFounder",
+      url: "/cofounder",
+      icon:Bot,
     },
     {
       title: "Settings",

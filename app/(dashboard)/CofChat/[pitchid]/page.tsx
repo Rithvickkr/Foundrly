@@ -1079,7 +1079,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                 aria-labelledby="delete-modal-title"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h3 id="delete-modal-title" className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                  <h3 id="delete-modal-title" className="text-lg font-semibold text-white dark:text-gray-200">
                     Delete Conversation
                   </h3>
                   <button
@@ -1090,7 +1090,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
                     <X size={20} />
                   </button>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
+                <p className="text-sm text-white dark:text-gray-300 mb-6">
                   Are you sure you want to delete this conversation? This action cannot be undone.
                 </p>
                 <div className="flex justify-end space-x-3">
