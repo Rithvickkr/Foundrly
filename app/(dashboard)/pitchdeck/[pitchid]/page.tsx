@@ -15,6 +15,10 @@ import {
   ChevronDown,
   ChevronUp,
   Save,
+  Zap,
+  TrendingUp,
+  Brain,
+  Target,
 } from "lucide-react";
 import {
   Tooltip,
@@ -66,12 +70,50 @@ interface TypewriterProps {
   onComplete?: () => void;
 }
 
-// Memoized TypewriterText for better performance
+// Floating particles background component
+const FloatingParticles = memo(() => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full"
+          initial={{
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+          }}
+          animate={{
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+          }}
+          transition={{
+            duration: Math.random() * 20 + 10,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "linear",
+          }}
+        />
+      ))}
+    </div>
+  );
+});
+
+FloatingParticles.displayName = "FloatingParticles";
+
+// Enhanced TypewriterText with cursor animation
 const TypewriterText = memo(
   ({ text, delay = 30, className, onComplete }: TypewriterProps) => {
     const [displayedText, setDisplayedText] = useState("");
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [showCursor, setShowCursor] = useState(true);
     const words = text.split(" ").filter((word) => word);
+
+    useEffect(() => {
+      const cursorInterval = setInterval(() => {
+        setShowCursor((prev) => !prev);
+      }, 500);
+      return () => clearInterval(cursorInterval);
+    }, []);
 
     useEffect(() => {
       if (currentIndex < words.length) {
@@ -87,13 +129,24 @@ const TypewriterText = memo(
       }
     }, [currentIndex, words, delay, onComplete]);
 
-    return <span className={className}>{displayedText}</span>;
+    return (
+      <span className={className}>
+        {displayedText}
+        {currentIndex < words.length && (
+          <span
+            className={`inline-block w-0.5 h-4 ml-1 bg-current transition-opacity duration-100 ${
+              showCursor ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+      </span>
+    );
   }
 );
 
 TypewriterText.displayName = "TypewriterText";
 
-// Memoized ActionButton for performance
+// Enhanced ActionButton with ripple effect
 const ActionButton = memo(
   ({
     onClick,
@@ -102,6 +155,7 @@ const ActionButton = memo(
     loading,
     disabled,
     tooltip,
+    variant = "primary",
   }: {
     onClick: () => void;
     icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
@@ -109,52 +163,108 @@ const ActionButton = memo(
     loading?: boolean;
     disabled?: boolean;
     tooltip: string;
-  }) => (
-    <TooltipProvider>
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          <Button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-4 py-3 text-base font-medium transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-indigo-500 shadow-indigo-500/50"
-            onClick={onClick}
-            disabled={disabled || loading}
-            aria-label={loading ? `Generating ${label}` : label}
-          >
-            {loading ? (
-              <>
-                <Loader2
-                  className="animate-spin w-5 h-5 mr-2"
-                  aria-hidden="true"
-                />
-                <span>Generating...</span>
-              </>
-            ) : (
-              <>
-                {React.cloneElement(icon, {
-                  "aria-hidden": "true",
-                  className: "w-5 h-5 mr-2",
-                })}
-                <span>{label}</span>
-              </>
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent className="bg-gray-800 text-gray-100 border-gray-700">
-          <p>{tooltip}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
+    variant?: "primary" | "secondary" | "success" | "purple";
+  }) => {
+    const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const newRipple = { id: Date.now(), x, y };
+      
+      setRipples((prev) => [...prev, newRipple]);
+      setTimeout(() => {
+        setRipples((prev) => prev.filter((ripple) => ripple.id !== newRipple.id));
+      }, 600);
+      
+      onClick();
+    };
+
+    const getVariantClasses = () => {
+      switch (variant) {
+        case "secondary":
+          return "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-purple-500/50";
+        case "success":
+          return "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-green-500/50";
+        case "purple":
+          return "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-violet-500/50";
+        default:
+          return "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/50 dark:shadow-indigo-500/50";
+      }
+    };
+
+    return (
+      <TooltipProvider>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <motion.div
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <Button
+                className={`${getVariantClasses()} text-white rounded-xl px-6 py-4 text-base font-semibold transition-all duration-300 hover:shadow-xl transform relative overflow-hidden group`}
+                onClick={handleClick}
+                disabled={disabled || loading}
+                aria-label={loading ? `Generating ${label}` : label}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                {ripples.map((ripple) => (
+                  <motion.div
+                    key={ripple.id}
+                    className="absolute bg-white/30 rounded-full"
+                    initial={{ width: 0, height: 0, opacity: 1 }}
+                    animate={{ width: 100, height: 100, opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                    style={{
+                      left: ripple.x - 50,
+                      top: ripple.y - 50,
+                    }}
+                  />
+                ))}
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin w-5 h-5 mr-3" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    {React.cloneElement(icon, {
+                      className: "w-5 h-5 mr-3 group-hover:rotate-12 transition-transform duration-300",
+                    })}
+                    <span>{label}</span>
+                  </>
+                )}
+              </Button>
+            </motion.div>
+          </TooltipTrigger>
+          <TooltipContent className="bg-gray-800 dark:bg-gray-800 text-gray-100 dark:text-gray-100 border-gray-700 dark:border-gray-700 backdrop-blur-sm">
+            <p>{tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 );
 
 ActionButton.displayName = "ActionButton";
 
-// Markdown renderer component with improved parsing
+// Enhanced MarkdownRenderer
 const MarkdownRenderer = memo(({ content }: { content: string | string[] }) => {
   if (Array.isArray(content)) {
     return (
-      <ul className="text-base text-gray-300 leading-relaxed font-light list-disc pl-6 space-y-2">
+      <ul className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light list-disc pl-6 space-y-3">
         {content.map((item, i) => (
-          <li key={i}>{item}</li>
+          <motion.li
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200"
+          >
+            {item}
+          </motion.li>
         ))}
       </ul>
     );
@@ -167,7 +277,7 @@ const MarkdownRenderer = memo(({ content }: { content: string | string[] }) => {
 
   return (
     <p
-      className="text-base text-gray-300 leading-relaxed font-light"
+      className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light"
       dangerouslySetInnerHTML={{ __html: formattedContent }}
     />
   );
@@ -175,7 +285,7 @@ const MarkdownRenderer = memo(({ content }: { content: string | string[] }) => {
 
 MarkdownRenderer.displayName = "MarkdownRenderer";
 
-// Animated section component
+// Enhanced ContentSectionComponent with advanced animations
 const ContentSectionComponent = memo(
   ({
     title,
@@ -191,30 +301,38 @@ const ContentSectionComponent = memo(
     sectionRef?: React.RefObject<HTMLDivElement | null>;
   }) => {
     const [visibleSections, setVisibleSections] = useState(0);
-    const borderColor =
-      color === "indigo"
-        ? "border-indigo-500"
-        : color === "purple"
-        ? "border-purple-500"
-        : "border-green-500";
-    const headerColor =
-      color === "indigo"
-        ? "text-indigo-300"
-        : color === "purple"
-        ? "text-purple-300"
-        : "text-green-300";
-    const headerGradient =
-      color === "indigo"
-        ? "from-indigo-900/30"
-        : color === "purple"
-        ? "from-purple-900/30"
-        : "from-green-900/30";
-    const accentColor =
-      color === "indigo"
-        ? "bg-indigo-500/10"
-        : color === "purple"
-        ? "bg-purple-500/10"
-        : "bg-green-500/10";
+    const [isHovered, setIsHovered] = useState(false);
+
+    const getColorClasses = () => {
+      switch (color) {
+        case "purple":
+          return {
+            border: "border-purple-400/50 dark:border-purple-500",
+            header: "text-purple-700 dark:text-purple-300",
+            gradient: "from-purple-50/80 dark:from-purple-900/30",
+            accent: "bg-purple-100/50 dark:bg-purple-500/10",
+            glow: "shadow-purple-200/50 dark:shadow-purple-500/20",
+          };
+        case "green":
+          return {
+            border: "border-green-400/50 dark:border-green-500",
+            header: "text-green-700 dark:text-green-300",
+            gradient: "from-green-50/80 dark:from-green-900/30",
+            accent: "bg-green-100/50 dark:bg-green-500/10",
+            glow: "shadow-green-200/50 dark:shadow-green-500/20",
+          };
+        default:
+          return {
+            border: "border-blue-400/50 dark:border-indigo-500",
+            header: "text-blue-700 dark:text-indigo-300",
+            gradient: "from-blue-50/80 dark:from-indigo-900/30",
+            accent: "bg-blue-100/50 dark:bg-indigo-500/10",
+            glow: "shadow-blue-200/50 dark:shadow-indigo-500/20",
+          };
+      }
+    };
+
+    const colors = getColorClasses();
 
     const handleSectionComplete = useCallback(() => {
       setVisibleSections((prev) => prev + 1);
@@ -223,34 +341,69 @@ const ContentSectionComponent = memo(
     return (
       <motion.section
         ref={sectionRef}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: 0.7, 
+          delay: 0.3,
+          type: "spring",
+          stiffness: 100,
+          damping: 15
+        }}
         className="w-full"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <Card className="bg-gradient-to-br  dark:from-gray-800 dark:to-gray-900 backdrop-blur-sm border-gray-700 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-1">
-          <CardHeader
-            className={`border-b border-gray-700 px-6 py-8 sm:px-8 bg-gradient-to-r ${headerGradient} to-transparent`}
-          >
-            <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-100 flex items-center">
-              {React.cloneElement(icon, {
-                "aria-hidden": "true",
-                className: "w-8 h-8 mr-3",
-              })}
-              {title}
+        <Card className={`bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 ${colors.border} shadow-2xl ${colors.glow} hover:shadow-3xl transition-all duration-500 rounded-2xl overflow-hidden transform hover:-translate-y-2 relative group`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+          
+          <CardHeader className={`border-b border-gray-200/50 dark:border-gray-700 px-8 py-10 bg-gradient-to-r ${colors.gradient} to-transparent relative overflow-hidden`}>
+            <motion.div
+              animate={isHovered ? { scale: 1.05, rotate: 5 } : { scale: 1, rotate: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute top-4 right-4 opacity-10"
+            >
+              {React.cloneElement(icon, { className: "w-32 h-32" })}
+            </motion.div>
+            
+            <CardTitle className="text-3xl sm:text-4xl font-black text-gray-800 dark:text-gray-100 flex items-center relative z-10">
+              <motion.div
+                animate={isHovered ? { rotate: 360, scale: 1.1 } : { rotate: 0, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                {React.cloneElement(icon, {
+                  className: "w-10 h-10 mr-4 text-current",
+                })}
+              </motion.div>
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                {title}
+              </motion.span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-6 py-8 sm:px-8 grid gap-8">
+
+          <CardContent className="px-8 py-10 space-y-8">
             {sections.slice(0, visibleSections + 1).map((section, index) => (
               <motion.div
                 key={`section-${index}-${section.header}`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className={`relative bg-gray-900/50 rounded-lg p-6 border-l-4 ${borderColor} hover:bg-gray-900/70 transition-colors duration-200`}
+                initial={{ opacity: 0, x: -40, rotateY: -15 }}
+                animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                transition={{ 
+                  delay: 0.2 + index * 0.1, 
+                  duration: 0.6,
+                  type: "spring",
+                  stiffness: 120
+                }}
+                className={`relative bg-white/70 dark:bg-gray-900/50 rounded-2xl p-8 border-l-4 ${colors.border} hover:bg-white/90 dark:hover:bg-gray-900/70 transition-all duration-300 group/section backdrop-blur-sm shadow-lg hover:shadow-xl`}
               >
-                <h3
-                  className={`text-xl sm:text-2xl font-bold ${headerColor} mb-4 tracking-tight`}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100/20 dark:via-gray-800/20 to-transparent -translate-x-full group-hover/section:translate-x-full transition-transform duration-700" />
+                
+                <motion.h3
+                  className={`text-2xl sm:text-3xl font-bold ${colors.header} mb-6 tracking-tight relative z-10`}
+                  whileHover={{ scale: 1.02 }}
                 >
                   <TypewriterText
                     text={section.header || "Overview"}
@@ -261,11 +414,18 @@ const ContentSectionComponent = memo(
                         : undefined
                     }
                   />
-                </h3>
+                </motion.h3>
+
                 {section.children.map((child, childIndex) => (
-                  <div key={`${child.type}-${childIndex}`} className="mb-4">
+                  <motion.div 
+                    key={`${child.type}-${childIndex}`} 
+                    className="mb-6 relative z-10"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + childIndex * 0.1 }}
+                  >
                     {child.type === "paragraph" && (
-                      <p className="text-base text-gray-300 leading-relaxed font-light">
+                      <div className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light">
                         {(child.content as string)
                           .split("\n")
                           .map((line, i, arr) => (
@@ -284,12 +444,18 @@ const ContentSectionComponent = memo(
                               {i < arr.length - 1 && <br />}
                             </span>
                           ))}
-                      </p>
+                      </div>
                     )}
                     {child.type === "bulletList" && (
-                      <ul className="text-base text-gray-300 leading-relaxed font-light list-disc pl-6 space-y-2">
+                      <ul className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light list-disc pl-6 space-y-3">
                         {(child.content as string[]).map((item, i) => (
-                          <li key={i}>
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 * i }}
+                            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200"
+                          >
                             <TypewriterText
                               text={item}
                               delay={30}
@@ -301,21 +467,25 @@ const ContentSectionComponent = memo(
                                   : undefined
                               }
                             />
-                          </li>
+                          </motion.li>
                         ))}
                       </ul>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
-                <div
-                  className={`absolute top-0 right-0 w-16 h-16 ${accentColor} rounded-bl-full`}
-                  aria-hidden="true"
+
+                <motion.div
+                  className={`absolute top-0 right-0 w-20 h-20 ${colors.accent} rounded-bl-full opacity-50`}
+                  animate={isHovered ? { scale: 1.2, rotate: 45 } : { scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.3 }}
                 />
               </motion.div>
             ))}
           </CardContent>
-        </Card>
-      </motion.section>
+          </Card>
+          </motion.section>
+        
+        
     );
   }
 );
@@ -384,7 +554,8 @@ export default function PitchDeckDetail() {
 
     fetchPitchDeck();
   }, [id]);
-   useEffect(() => {
+
+  useEffect(() => {
     // Fetch previously generated content if available
     const fetchPreviousGenerations = async () => {
       if (!id) return;
@@ -402,7 +573,6 @@ export default function PitchDeckDetail() {
         });
         
         if (response.status === 404) {
-          // Generation not found, which is okay
           return;
         }
         
@@ -417,7 +587,6 @@ export default function PitchDeckDetail() {
         if (data.generation) {
           const gen = data.generation;
           
-          // Set previously generated content if available
           if (gen.ai_content) {
             setAiContent({ generatedcontent: gen.ai_content });
           }
@@ -435,12 +604,11 @@ export default function PitchDeckDetail() {
         }
       } catch (error) {
         console.error("Error fetching previous generations:", error);
-        // Don't show a toast here as it's not crucial for the user experience
       }
     };
 
     fetchPreviousGenerations();
-  }, [id]); // Add dependency array with id
+  }, [id]);
   
   // Scroll to AI section when content loads
   useEffect(() => {
@@ -690,15 +858,14 @@ export default function PitchDeckDetail() {
         if (!data) throw new Error(`No ${type} data returned`);
 
         const normalizedData: PitchDeckResponse = {
-  [config.key]: data[config.key] ?? data,
-  ...(type === 'validation' ? { 
-    reasoning: data.reasoning || [],
-    // Extract just the numeric validation_score from the response object
-    validation_score: typeof data.validation_score === 'object' 
-      ? (data.validation_score.validation_score || 0)
-      : (data.validation_score ?? 0)
-  } : {}),
-};
+          [config.key]: data[config.key] ?? data,
+          ...(type === 'validation' ? { 
+            reasoning: data.reasoning || [],
+            validation_score: typeof data.validation_score === 'object' 
+              ? (data.validation_score.validation_score || 0)
+              : (data.validation_score ?? 0)
+          } : {}),
+        };
 
         if (normalizedData[config.key] == null) {
           throw new Error(`Invalid ${type} data format`);
@@ -706,20 +873,16 @@ export default function PitchDeckDetail() {
         console.log("response yeh aarah bhai", normalizedData[config.key]);
         
         console.log("normalise data before processing", normalizedData);
-        // Check if the data is an object structure
         if (typeof normalizedData[config.key] === 'object' && 
           !Array.isArray(normalizedData[config.key]) && 
           normalizedData[config.key] !== null) {
           
-          // If it's an object, extract the relevant content as string
-          // Cast to Record<string, any> to make TypeScript happy
           const keyValue = normalizedData[config.key] as Record<string, any>;
           const extractedContent = Object.values(keyValue)[0];
           
           if (typeof extractedContent === 'string') {
             normalizedData[config.key] = extractedContent;
           } else if (extractedContent && typeof extractedContent === 'object') {
-            // Handle nested object case if needed
             normalizedData[config.key] = JSON.stringify(extractedContent);
           }
         }
@@ -772,21 +935,41 @@ export default function PitchDeckDetail() {
     setShowReasoning((prev) => !prev);
   }, []);
 
-  // Loading state
+  // Loading state with enhanced animation
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-blue-950 px-4">
-        <Card className="bg-gray-800 backdrop-blur-sm border-gray-700 shadow-xl w-full max-w-md">
-          <CardContent className="p-10 flex flex-col items-center gap-4">
-            <Loader2
-              className="animate-spin w-14 h-14 text-indigo-600"
-              aria-hidden="true"
-            />
-            <p className="text-lg font-medium text-gray-400">
-              Loading Pitch Deck...
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:from-gray-900 dark:to-blue-950 px-4 relative overflow-hidden">
+        <FloatingParticles />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-blue-200/50 dark:border-gray-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
+            <CardContent className="p-12 flex flex-col items-center gap-6">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                <Loader2 className="w-16 h-16 text-blue-600 dark:text-indigo-600" />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-xl font-semibold text-gray-700 dark:text-gray-400"
+              >
+                Loading Pitch Deck...
+              </motion.p>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     );
   }
@@ -794,231 +977,262 @@ export default function PitchDeckDetail() {
   // Error state - pitch deck not found
   if (!pitchDeck) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-blue-950 px-4">
-        <Card className="bg-gray-800 backdrop-blur-sm border-gray-700 shadow-xl w-full max-w-md">
-          <CardContent className="p-10 text-center flex flex-col gap-6">
-            <p className="text-xl font-semibold text-red-400" role="alert">
-              Pitch Deck Not Found
-            </p>
-            <Button
-              onClick={() => router.push("/")}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-base font-medium transition-all duration-200 hover:scale-105 shadow-indigo-500/50"
-              aria-label="Back to Dashboard"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" aria-hidden="true" />
-              Back to Dashboard
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:from-gray-900 dark:to-blue-950 px-4 relative overflow-hidden">
+        <FloatingParticles />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+        >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-red-200/50 dark:border-gray-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
+            <CardContent className="p-12 text-center flex flex-col gap-6">
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <FileText className="w-16 h-16 text-red-500 mx-auto" />
+              </motion.div>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400" role="alert">
+                Pitch Deck Not Found
+              </p>
+              <ActionButton
+                onClick={() => router.push("/")}
+                icon={<ArrowLeft />}
+                label="Back to Dashboard"
+                tooltip="Return to the main dashboard"
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     );
   }
 
-  // Main content
+  // Main content with enhanced styling
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-8 lg:px-8 bg-gradient-to-br from-gray-900 to-blue-950 text-gray-100">
-      <div className="max-w-5xl mx-auto space-y-12">
-        {/* Dashboard Button - Keep this at the top */}
-        
-         
+    <div className="min-h-screen py-8 px-4 sm:px-8 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-950/50 dark:to-indigo-950  dark:text-gray-100 text-gray-800  relative overflow-hidden">
+      <FloatingParticles />
+      
+      <div className="max-w-6xl mx-auto space-y-16 relative z-10">
         <AnimatePresence mode="wait">
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="space-y-12"
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="space-y-16"
           >
-            {/* Pitch Deck Overview */}
-            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden">
-              <CardHeader className="border-b border-gray-700 px-5 py-6 bg-gradient-to-r from-gray-900/50 to-transparent">
-                <CardTitle className="text-2xl font-bold text-gray-100 flex items-center">
-                  <FileText
-                    className="w-6 h-6 mr-3 text-indigo-600"
-                    aria-hidden="true"
-                  />
-                  {pitchDeck.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 py-6 grid gap-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-gray-800/60 p-4 rounded-lg border border-gray-700"
-                  >
-                    <h3 className="text-lg font-semibold mb-2 text-gray-100">
-                      Industry
-                    </h3>
-                    <p className="text-sm text-gray-300">
-                      {pitchDeck.industry}
-                    </p>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="bg-gray-800/60 p-4 rounded-lg border border-gray-700"
-                  >
-                    <h3 className="text-lg font-semibold mb-2 text-gray-100">
-                      Stage
-                    </h3>
-                    <p className="text-sm text-gray-300">
-                      {pitchDeck.startup_stage}
-                    </p>
-                  </motion.div>
-                </div>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="bg-gray-800/60 p-4 rounded-lg border border-gray-700"
-                >
-                  <h3 className="text-lg font-semibold mb-2 text-gray-100">
-                    Description
-                  </h3>
-                  <p className="text-sm text-gray-300">
-                    {pitchDeck.description}
-                  </p>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="bg-gray-800/60 p-4 rounded-lg border border-gray-700"
-                >
-                  <h3 className="text-lg font-semibold mb-2 text-gray-100">
-                    Target Market
-                  </h3>
-                  <p className="text-sm text-gray-300">
-                    {pitchDeck.target_market}
-                  </p>
-                </motion.div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons - Moved to below the pitch deck section */}
+            {/* Pitch Deck Overview with enhanced design */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+            >
+              <Card className="bg-gradient-to-br from-white/90 to-blue-50/90 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-blue-200/50 dark:border-gray-700 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-2xl overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                
+                <CardHeader className="border-b border-blue-200/50 dark:border-gray-700 px-8 py-10 bg-gradient-to-r from-blue-50/80 dark:from-gray-900/50 to-transparent relative">
+                  <motion.div
+                    className="absolute top-4 right-4 opacity-10"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Brain className="w-24 h-24 text-blue-500" />
+                  </motion.div>
+                  
+                  <CardTitle className="text-3xl font-black text-gray-800 dark:text-gray-100 flex items-center relative z-10">
+                    <motion.div
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <FileText className="w-8 h-8 mr-4 text-blue-600 dark:text-indigo-600" />
+                    </motion.div>
+                    <motion.span
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      {pitchDeck.title}
+                    </motion.span>
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className="px-8 py-10 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {[
+                      { label: "Industry", value: pitchDeck.industry, icon: <TrendingUp />, color: "from-green-500 to-emerald-500" },
+                      { label: "Stage", value: pitchDeck.startup_stage, icon: <Target />, color: "from-purple-500 to-violet-500" },
+                    ].map((item, index) => (
+                      <>
+                      <motion.div
+                        key={item.label}
+                        initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 + index * 0.1, type: "spring", stiffness: 100 }}
+                        className="bg-white/70 dark:bg-gray-800/60 p-6 rounded-xl border border-gray-200/50 dark:border-gray-700 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-800/80 transition-all duration-300 group/card"
+                      >
+                        <div className="flex items-center mb-3">
+                          <div className={`p-2 rounded-lg bg-gradient-to-r ${item.color} text-white mr-3 group-hover/card:scale-110 transition-transform duration-300`}>
+                            {React.cloneElement(item.icon, { className: "w-5 h-5" })}
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                            {item.label}
+                          </h3>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 font-medium">
+                          {item.value}
+                        </p>
+                      </motion.div>
+                      </>
+
+                    ))}
+                  </div>
+
+                  {[
+                    { label: "Description", value: pitchDeck.description },
+                    { label: "Target Market", value: pitchDeck.target_market },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 + index * 0.1, type: "spring", stiffness: 100 }}
+                      className="bg-white/70 dark:bg-gray-800/60 p-6 rounded-xl border border-gray-200/50 dark:border-gray-700 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-800/80 transition-all duration-300"
+                    >
+                      <h3 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-100">
+                        {item.label}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {item.value}
+                      </p>
+                    </motion.div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Enhanced Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8"
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="flex flex-wrap justify-center gap-4 sm:gap-6"
             >
               <ActionButton
-                onClick={() => generateContent("ai")}
-                icon={<FileText />}
-                label="Generate AI Insights"
-                loading={aiLoading}
-                tooltip="Generate comprehensive AI-driven pitch insights"
+              onClick={() => generateContent("ai")}
+              icon={<Brain />}
+              label="AI Insights"
+              loading={aiLoading}
+              tooltip="Generate comprehensive AI-driven pitch insights"
+              variant="primary"
               />
               
               <ActionButton
-                onClick={() => generateContent("competitor")}
-                icon={<BarChart3 />}
-                label="Competitor Analysis"
-                loading={competitorLoading}
-                tooltip="Generate AI-driven competitor analysis"
+              onClick={() => generateContent("competitor")}
+              icon={<BarChart3 />}
+              label="Competitor Analysis"
+              loading={competitorLoading}
+              tooltip="Generate AI-driven competitor analysis"
+              variant="secondary"
               />
 
               <ActionButton
-                onClick={() => {
-                  generateContent("validation");
-                  console.log("validation content", validationContent);
-                }}
-                icon={<CheckCircle />}
-                label="Validate Idea"
-                loading={validationLoading}
-                tooltip="Validate your startup idea"
+              onClick={() => generateContent("validation")}
+              icon={<CheckCircle />}
+              label="Validate Idea"
+              loading={validationLoading}
+              tooltip="Validate your startup idea"
+              variant="success"
               />
 
               <ActionButton
-                onClick={handleSlideContent}
-                icon={<Sparkles />}
-                label="Slide Content"
-                tooltip="Generate AI-driven slide content"
+              onClick={handleSlideContent}
+              icon={<Sparkles />}
+              label="Slide Content"
+              tooltip="Generate AI-driven slide content"
+              variant="purple"
               />
+
               <ActionButton
-                onClick={async () => {
-                  try {
-                    if (!aiContent && !competitorContent && !validationContent) {
-                      toast({
-                        title: "No content to save",
-                        description: "Please generate content first before saving.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    
-                    const token = await getAuthToken();
-                    if (!token) throw new Error("User not authenticated");
-                    
-                    const contentToSave = {
-                      pitch_id: id,
-                      ai_content: aiContent?.generatedcontent || null,
-                      competitor_analysis: competitorContent?.competitor_analysis || null,
-                      validation_score: validationContent?.validation_score || null,
-                      validation_reasoning: validationContent?.reasoning || null,
-                    };
-                    console.log("Content to save:", contentToSave);
-                    const response = await fetch("http://127.0.0.1:8000/save-content", {
-                      method: "POST",
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify(contentToSave),
-                    });
-                    
-                    if (!response.ok) throw new Error("Failed to save content");
-                    
-                    toast({
-                      title: "Success",
-                      description: "Content saved successfully!",
-                      variant: "default",
-                    });
-                  } catch (error) {
-                    console.error("Failed to save content:", error);
-                    toast({
-                      title: "Error",
-                      description: error instanceof Error ? error.message : "Failed to save content",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                icon={<Save />}
-                label="Save Content"
-                tooltip="Save all generated content for future reference"
+              onClick={async () => {
+                try {
+                if (!aiContent && !competitorContent && !validationContent) {
+                  toast({
+                  title: "No content to save",
+                  description: "Please generate content first before saving.",
+                  variant: "destructive",
+                  });
+                  return;
+                }
+                
+                const token = await getAuthToken();
+                if (!token) throw new Error("User not authenticated");
+                
+                const contentToSave = {
+                  pitch_id: id,
+                  ai_content: aiContent?.generatedcontent || null,
+                  competitor_analysis: competitorContent?.competitor_analysis || null,
+                  validation_score: validationContent?.validation_score || null,
+                  validation_reasoning: validationContent?.reasoning || null,
+                };
+                
+                const response = await fetch("http://127.0.0.1:8000/save-content", {
+                  method: "POST",
+                  headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(contentToSave),
+                });
+                
+                if (!response.ok) throw new Error("Failed to save content");
+                
+                toast({
+                  title: "Success",
+                  description: "Content saved successfully!",
+                  variant: "default",
+                });
+                } catch (error) {
+                console.error("Failed to save content:", error);
+                toast({
+                  title: "Error",
+                  description: error instanceof Error ? error.message : "Failed to save content",
+                  variant: "destructive",
+                });
+                }
+              }}
+              icon={<Save />}
+              label="Save Content"
+              tooltip="Save all generated content for future reference"
+              variant="primary"
               />
             </motion.div>
 
-            {/* AI-Generated Content */}
+            {/* Content Sections with enhanced animations */}
             {aiContent && (
               <ContentSectionComponent
                 title="AI-Generated Pitch Insights"
-                icon={<FileText className="text-indigo-400 animate-pulse" />}
+                icon={<Brain className="text-blue-500 dark:text-indigo-400" />}
                 sections={parseAIResponse(aiContent)}
                 color="indigo"
                 sectionRef={aiSectionRef}
               />
             )}
 
-            {/* Competitor Analysis Section */}
             {competitorContent && (
               <ContentSectionComponent
                 title="Competitor Analysis"
-                icon={<BarChart3 className="text-purple-400 animate-pulse" />}
+                icon={<BarChart3 className="text-purple-500 dark:text-purple-400" />}
                 sections={parseAIResponse(competitorContent)}
                 color="purple"
                 sectionRef={competitorSectionRef}
               />
             )}
 
-            {/* Validation Score Section */}
             {validationContent && (
               <ContentSectionComponent
                 title="Idea Validation"
-                icon={<CheckCircle className="text-green-400 animate-pulse" />}
+                icon={<CheckCircle className="text-green-500 dark:text-green-400" />}
                 sections={[
                   {
                     type: "section",
@@ -1048,38 +1262,41 @@ export default function PitchDeckDetail() {
               />
             )}
 
-            {/* Toggle Reasoning Button */}
+            {/* Enhanced Toggle Reasoning Button */}
             {validationContent?.reasoning?.length && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2, type: "spring", stiffness: 150 }}
                 className="flex justify-center"
               >
-                <Button
-                  onClick={toggleReasoning}
-                  className="bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg px-4 py-3 text-base font-medium transition-all duration-200 hover:scale-105"
-                  aria-label={
-                    showReasoning
-                      ? "Hide validation details"
-                      : "Show validation details"
-                  }
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {showReasoning ? (
-                    <>
-                      <ChevronUp className="w-5 h-5 mr-2" aria-hidden="true" />
-                      Hide Details
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown
-                        className="w-5 h-5 mr-2"
-                        aria-hidden="true"
-                      />
-                      Show Details
-                    </>
-                  )}
-                </Button>
+                  <Button
+                    onClick={toggleReasoning}
+                    className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 dark:from-gray-700 dark:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 text-white rounded-xl px-8 py-4 text-base font-semibold transition-all duration-300 hover:shadow-xl transform relative overflow-hidden group"
+                    aria-label={
+                      showReasoning
+                        ? "Hide validation details"
+                        : "Show validation details"
+                    }
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    {showReasoning ? (
+                      <>
+                        <ChevronUp className="w-5 h-5 mr-3 group-hover:-translate-y-1 transition-transform duration-300" />
+                        Hide Details
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-5 h-5 mr-3 group-hover:translate-y-1 transition-transform duration-300" />
+                        Show Details
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
               </motion.div>
             )}
           </motion.section>

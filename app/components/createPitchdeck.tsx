@@ -90,7 +90,6 @@ const industries = [
   "Cloud Computing",
   "Big Data",
   "Analytics",
-  "Cybersecurity",
   "Fintech",
   "Edtech",
   "Healthtech",
