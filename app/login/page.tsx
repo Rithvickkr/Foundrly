@@ -77,7 +77,7 @@ export default function LoginPage() {
         setMessage(useMagicLink ? "Magic link sent! Check your email." : "Login successful!");
         setStatus("success");
         if (!useMagicLink) {
-          setTimeout(() => router.push("/"), 1500);
+          setTimeout(() => router.push("/appdash"), 1500);
         }
       }
     } catch (error) {

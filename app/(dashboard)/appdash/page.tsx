@@ -15,17 +15,10 @@ import {
   Send,
   BarChart3,
   Lightbulb,
-  Target,
   Users,
   TrendingUp,
   Zap,
-  Palette,
   Presentation,
-  Search,
-  Filter,
-  Download,
-  Share2,
-  Eye,
   Bot,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -97,7 +90,7 @@ const mockTools = [
   },
 ];
 
-export default function DashboardHome() {
+export default function Dashboard() {
   const [userName, setUserName] = useState("user");
   const [chatOpen, setChatOpen] = useState(false);
   const [recentDecks, setRecentDecks] = useState<PitchDeckResponseDetails[]>([]);
@@ -113,9 +106,14 @@ export default function DashboardHome() {
     },
   ]);
   const [message, setMessage] = useState("");
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
-
+  
+  // Tool categories
+  const categories = ["All", "Research", "Creative", "Strategy", "Management", "Analytics"];
   useEffect(() => {
+    setIsClient(true);
+    
     const fetchUser = async () => {
       const user = await getUser();
       if (user) {
@@ -143,9 +141,9 @@ export default function DashboardHome() {
     return () => clearTimeout(timer);
   }, []);
 
-  const deckCompletion = 85;
-  const categories = ["All", "Research", "Creative", "Strategy", "Management", "Analytics"];
-  
+  if (!isClient) {
+    return null;
+  }
   const filteredTools = selectedToolCategory === "All" 
     ? mockTools 
     : mockTools.filter(tool => tool.category === selectedToolCategory);
@@ -294,117 +292,183 @@ export default function DashboardHome() {
           )}
         </AnimatePresence>
 
-        {/* Stats Section */}
+        {/* Stats Section - Only Total Decks */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-4 gap-6"
         >
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden border border-white/20">
+            <CardHeader className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800/80 dark:to-blue-900/20">
+              <CardTitle className="text-2xl font-bold flex items-center">
+          <BarChart3 className="w-7 h-7 mr-3 text-indigo-500" />
+          Dashboard Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Total Decks Section */}
           <motion.div variants={statsVariants}>
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden border border-white/20">
+            <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Decks</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-indigo-600"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                    >
-                      {totalDecks}
-                    </motion.p>
-                  </div>
-                  <motion.div
-                    className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-full"
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <Presentation className="w-6 h-6 text-indigo-600" />
-                  </motion.div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Decks</p>
+              <motion.p 
+                className="text-4xl font-bold text-indigo-600 dark:text-indigo-400"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+              >
+                {totalDecks}
+              </motion.p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {totalDecks > 0 ? `${Math.round((totalDecks / 10) * 100)}% of goal` : "Start creating!"}
+              </p>
+            </div>
+            <motion.div
+              className="p-4 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl"
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Presentation className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+            </motion.div>
+                </div>
+                <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <motion.div
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min((totalDecks / 10) * 100, 100)}%` }}
+              transition={{ delay: 0.7, duration: 1, ease: "easeOut" }}
+            />
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
+          {/* Insights Section */}
           <motion.div variants={statsVariants}>
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden border border-white/20">
+            <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completion Rate</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-green-600"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-                    >
-                      {deckCompletion}%
-                    </motion.p>
-                  </div>
-                  <motion.div
-                    className="p-3 bg-green-100 dark:bg-green-900/50 rounded-full"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <TrendingUp className="w-6 h-6 text-green-600" />
-                  </motion.div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">AI Insights</p>
+              <motion.p 
+                className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+              >
+                {totalDecks > 0 ? "Ready to Scale" : "Getting Started"}
+              </motion.p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {totalDecks > 0 
+                  ? `Based on ${totalDecks} deck${totalDecks !== 1 ? 's' : ''} analysis`
+                  : "Create your first deck for insights"
+                }
+              </p>
+            </div>
+            <motion.div
+              className="p-4 bg-emerald-100 dark:bg-emerald-900/50 rounded-2xl"
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Lightbulb className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+            </motion.div>
+                </div>
+                <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-600 dark:text-gray-400">Success Rate</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                {totalDecks > 0 ? "85%" : "N/A"}
+              </span>
+            </div>
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <motion.div
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1.5 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: totalDecks > 0 ? "85%" : "0%" }}
+                transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
+              />
+            </div>
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
+              </div>
+
+              {/* Additional Insights Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <motion.div
+            variants={statsVariants}
+            className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Avg. Time</p>
+                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            {totalDecks > 0 ? "12min" : "--"}
+                </p>
+              </div>
+            </div>
           </motion.div>
 
-          <motion.div variants={statsVariants}>
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden border border-white/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Views This Month</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-purple-600"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
-                    >
-                      2.4k
-                    </motion.p>
-                  </div>
-                  <motion.div
-                    className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <Eye className="w-6 h-6 text-purple-600" />
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
+          <motion.div
+            variants={statsVariants}
+            className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-purple-100 dark:border-purple-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">This Week</p>
+                <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+            +{Math.max(0, totalDecks)}
+                </p>
+              </div>
+            </div>
           </motion.div>
 
-          <motion.div variants={statsVariants}>
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden border border-white/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Shares</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-orange-600"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-                    >
-                      347
-                    </motion.p>
-                  </div>
-                  <motion.div
-                    className="p-3 bg-orange-100 dark:bg-orange-900/50 rounded-full"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <Share2 className="w-6 h-6 text-orange-600" />
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
+          <motion.div
+            variants={statsVariants}
+            className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl p-4 border border-orange-100 dark:border-orange-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg">
+                <Zap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">AI Score</p>
+                <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+            {totalDecks > 0 ? "92%" : "--"}
+                </p>
+              </div>
+            </div>
           </motion.div>
+
+          <motion.div
+            variants={statsVariants}
+            className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-100 dark:border-green-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Shared</p>
+                <p className="text-lg font-bold text-green-600 dark:text-green-400">
+            {Math.floor(totalDecks * 0.6)}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Tools Section */}
@@ -443,7 +507,9 @@ export default function DashboardHome() {
                   ))}
                 </div>
               </div>
+              
             </CardHeader>
+
             <CardContent className="p-6">
               <motion.div 
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -566,22 +632,6 @@ export default function DashboardHome() {
                         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed mb-4">
                           {project.description}
                         </p>
-                        <div className="mb-4">
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="text-gray-600 dark:text-gray-400 font-medium">Completion</span>
-                            <span className="font-bold text-gray-800 dark:text-gray-200">
-                              {deckCompletion}%
-                            </span>
-                          </div>
-                          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${deckCompletion}%` }}
-                              transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-                            />
-                          </div>
-                        </div>
                         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />
@@ -606,7 +656,8 @@ export default function DashboardHome() {
                   ))}
                 </div>
               ) : (
-                <motion.div 
+
+                <>                <motion.div 
                   className="text-center py-12 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800/50 dark:to-blue-900/20 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -637,7 +688,9 @@ export default function DashboardHome() {
                     </Button>
                   </motion.div>
                 </motion.div>
+                </>
               )}
+
             </CardContent>
           </Card>
         </motion.div>

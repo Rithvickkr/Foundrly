@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Navbar } from "./components/navbar";
@@ -9,7 +9,9 @@ import { themeManager } from "../lib/theme/ThemeManager";
 
 export function ClientWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const isslashpage = pathname === "/";
   const isAuthPage = pathname === "/login";
+  const isLandingPage = pathname === "/home";
   const isplayground = pathname.startsWith("/Slideplayground/") || pathname.startsWith("/Slideplayground");
 
   useEffect(() => {
@@ -17,14 +19,12 @@ export function ClientWrapper({ children }: { children: ReactNode }) {
     console.log('ClientWrapper: Initializing ThemeManager');
     themeManager.getTheme(); // Trigger initialization
   }, []);
-
-  console.log('ClientWrapper: Rendering, isAuthPage:', isAuthPage);
-  console.log('ClientWrapper: Rendering, isplayground:', isplayground);
+  
   return (
     <SidebarProvider>
-      {(!isAuthPage && !isplayground) && <AppSidebar />}
+      {(!isAuthPage && !isplayground && !isLandingPage && !isslashpage) && <AppSidebar />}
       <div className="flex flex-col w-full transition-all">
-        {!isAuthPage && <Navbar />}
+        {(!isAuthPage && !isLandingPage && !isslashpage) && <Navbar />}
         <main >{children}</main>
       </div>
     </SidebarProvider>

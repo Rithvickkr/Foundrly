@@ -4,25 +4,26 @@ import { createClient } from "@supabase/supabase-js";
 export async function middleware(req: NextRequest) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Use admin key (server-side)
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // Make sure this is NEVER exposed to client
   );
 
-  const token = req.cookies.get("sb-access-token")?.value; // Get token from cookies
-  let user = null;
+  const token = req.cookies.get("sb-access-token")?.value;
 
-  if (token) {
-    const { data, error } = await supabase.auth.getUser(token);
-    user = data?.user || null;
-  }
-
-  // Redirect to login if trying to access dashboard without being logged in
-  if (!user && req.nextUrl.pathname.startsWith("/dashboard")) {
+  if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+
+  // If there's no user or an error occurred, redirect to login
+  if (!user) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  // User is authenticated — let them in
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"], // Protects all dashboard routes
+  matcher: ["/dashboard/:path*"], // Only protect /dashboard/*
 };

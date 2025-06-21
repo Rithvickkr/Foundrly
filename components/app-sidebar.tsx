@@ -49,7 +49,7 @@ const data = {
   navMain: [
     {
       title: "New Pitch Deck",
-      url: "/home",
+      url: "/appdash",
       icon: SquareTerminal,
     },
     {
@@ -158,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu className="flex items-center ">
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/home" className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-colors">
+              <a href="/appdash" className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-colors">
                 <div className="bg-gradient-to-br from-indigo-600 to-purple-600 dark:from-indigo-500 dark:to-purple-500 text-white flex aspect-square size-10 items-center justify-center rounded-lg shadow-md">
                   <Command className="size-5" />
                 </div>
