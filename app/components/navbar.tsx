@@ -33,25 +33,19 @@ export function Navbar() {
     return () => unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/");
-  };
-
   const handleThemeChange = () => {
     console.log('Navbar: Triggering theme toggle, current theme:', theme);
     themeManager.toggleTheme();
   };
 
   return (
-    <nav className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-900 dark:to-indigo-950 text-white h-14 shadow-lg transition-colors duration-300">
+    <nav className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 text-white h-14 shadow-lg dark:shadow-slate-900/50 border-b border-transparent dark:border-slate-700/50 backdrop-blur-sm transition-all duration-300">
       <div className="flex items-center space-x-3">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             onClick={toggleSidebar}
-            className="p-2 rounded-full text-white hover:bg-white/10 transition-all duration-200 ease-in-out transform hover:scale-110"
+            className="p-2 rounded-full text-white hover:bg-white/10 dark:hover:bg-slate-700/80 dark:text-slate-200 transition-all duration-200 ease-in-out transform hover:scale-110"
             aria-label="Toggle sidebar"
           >
             <Sidebar className="h-5 w-5" />
@@ -71,7 +65,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             onClick={handleThemeChange}
-            className="p-2 rounded-full text-white hover:bg-white/10 transition-all duration-200 ease-in-out"
+            className="p-2 rounded-full text-white hover:bg-white/10 dark:hover:bg-slate-700/80 dark:text-slate-200 transition-all duration-200 ease-in-out"
             aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
           >
             <AnimatePresence mode="wait">
@@ -85,29 +79,13 @@ export function Navbar() {
                 {theme === "light" ? (
                   <Sun className="h-5 w-5" />
                 ) : (
-                  <Moon className="h-5 w-5" />
+                  <Moon className="h-5 w-5 text-amber-400" />
                 )}
               </motion.div>
             </AnimatePresence>
           </Button>
         </motion.div>
-        {/* {user ? (
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="px-4 py-1 h-9 rounded-full font-medium border border-white/30 text-white hover:bg-white/10 transition-all duration-200 ease-in-out"
-          >
-            Log out
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            onClick={() => router.push("/login")}
-            className="px-4 py-1 h-9 rounded-full font-medium border border-white/30 text-white hover:bg-white/10 transition-all duration-200 ease-in-out"
-          >
-            Login
-          </Button>
-        )} */}
+        
       </div>
     </nav>
   );

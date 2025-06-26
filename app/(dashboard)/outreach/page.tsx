@@ -175,6 +175,7 @@ export default function OutreachCampaignPage() {
             if (!response.ok) throw new Error("Failed to create outreach campaign");
 
             const data = await response.json();
+            console.log("Campaign created:", data);
             toast({
                 title: "Success",
                 description: "Outreach campaign created successfully!",
@@ -187,7 +188,7 @@ export default function OutreachCampaignPage() {
 
             // Navigate to campaign details or list
             setTimeout(() => {
-                router.push(`/outreach/campaigns/${data.id}`);
+                router.push(`/campaigns/${data.campaign_id}`); // Adjust the route as needed
             }, 1500);
         } catch (error) {
             console.error("Error:", error);

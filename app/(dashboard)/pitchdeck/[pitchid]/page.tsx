@@ -31,8 +31,9 @@ import {
   PitchDeckRequest,
 } from "@/lib/actions/getaipitch";
 import { getAuthToken } from "@/lib/actions/getauthtoken";
-import { toast } from "@/components/use-toast";
+import { toast } from "sonner";
 import { fetchCompanalysis } from "@/lib/actions/getcompanalysis";
+
 
 // Define interfaces for better TypeScript support
 interface PitchDeck {
@@ -72,6 +73,27 @@ interface TypewriterProps {
 
 // Floating particles background component
 const FloatingParticles = memo(() => {
+  const [windowSize, setWindowSize] = useState({ width: 1200, height: 800 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const updateWindowSize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateWindowSize();
+    window.addEventListener('resize', updateWindowSize);
+    return () => window.removeEventListener('resize', updateWindowSize);
+  }, []);
+
+  if (!mounted) {
+    return <div className="absolute inset-0 overflow-hidden pointer-events-none" />;
+  }
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
@@ -79,12 +101,12 @@ const FloatingParticles = memo(() => {
           key={i}
           className="absolute w-2 h-2 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full"
           initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * windowSize.width,
+            y: Math.random() * windowSize.height,
           }}
           animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * windowSize.width,
+            y: Math.random() * windowSize.height,
           }}
           transition={{
             duration: Math.random() * 20 + 10,
@@ -542,10 +564,8 @@ export default function PitchDeckDetail() {
         setPitchDeck(data);
       } catch (error) {
         console.error("Failed to fetch pitch deck:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load pitch deck.",
-          variant: "destructive",
+        toast("Error loading pitch deck", {
+          description: "Failed to load pitch deck data. Please try again.",
         });
       } finally {
         setLoading(false);
@@ -601,6 +621,10 @@ export default function PitchDeckDetail() {
               reasoning: gen.validation_reasoning || []
             });
           }
+          
+          toast("Previous content loaded", {
+            description: "Your previously generated content has been restored.",
+          });
         }
       } catch (error) {
         console.error("Error fetching previous generations:", error);
@@ -811,10 +835,8 @@ export default function PitchDeckDetail() {
   const generateContent = useCallback(
     async (type: "ai" | "competitor" | "validation") => {
       if (!pitchDeck) {
-        toast({
-          title: "Error",
-          description: "No pitch deck data available.",
-          variant: "destructive",
+        toast("No pitch deck data available", {
+          description: "Unable to generate content without pitch deck information.",
         });
         return;
       }
@@ -826,6 +848,8 @@ export default function PitchDeckDetail() {
           fetch: fetchGeneratedPitch,
           key: "generatedcontent",
           keys: ["generated_pitch"],
+          successMessage: "AI insights generated successfully",
+          errorMessage: "Failed to generate AI insights",
         },
         competitor: {
           setLoading: setCompetitorLoading,
@@ -833,6 +857,8 @@ export default function PitchDeckDetail() {
           fetch: fetchCompanalysis,
           key: "competitor_analysis",
           keys: ["competitor_analysis"],
+          successMessage: "Competitor analysis generated successfully",
+          errorMessage: "Failed to generate competitor analysis",
         },
         validation: {
           setLoading: setValidationLoading,
@@ -840,6 +866,8 @@ export default function PitchDeckDetail() {
           fetch: fetchValidationScore,
           key: "validation_score",
           keys: ["validation_score", "reasoning"],
+          successMessage: "Idea validation completed successfully",
+          errorMessage: "Failed to validate idea",
         },
       }[type];
 
@@ -890,16 +918,15 @@ export default function PitchDeckDetail() {
         console.log("Normalized data after processing:", normalizedData);
         config.setContent(normalizedData);
         console.log("Data set successfully:", normalizedData);
+        
+        toast(config.successMessage, {
+          description: `Your ${type === 'ai' ? 'AI insights' : type === 'competitor' ? 'competitor analysis' : 'idea validation'} has been generated and is ready to view.`,
+        });
        
       } catch (error) {
         console.error(`Failed to generate ${type}:`, error);
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error
-              ? error.message
-              : `Failed to generate ${type}`,
-          variant: "destructive",
+        toast(config.errorMessage, {
+          description: error instanceof Error ? error.message : `An error occurred while generating ${type} content.`,
         });
       } finally {
         config.setLoading(false);
@@ -911,10 +938,8 @@ export default function PitchDeckDetail() {
   // Navigate to slide playground with pitch data
   const handleSlideContent = useCallback(() => {
     if (!pitchDeck) {
-      toast({
-        title: "Error",
-        description: "No pitch deck data available.",
-        variant: "destructive",
+      toast("No pitch deck data available", {
+        description: "Unable to navigate to slide content without pitch deck information.",
       });
       return;
     }
@@ -928,6 +953,10 @@ export default function PitchDeckDetail() {
     }).toString();
 
     router.push(`/Slideplayground/${id}?${queryParams}`);
+    
+    toast("Navigating to slide playground", {
+      description: "Opening slide content generator with your pitch deck data.",
+    });
   }, [pitchDeck, id, router]);
 
   // Toggle reasoning visibility
@@ -1013,7 +1042,7 @@ export default function PitchDeckDetail() {
     <div className="min-h-screen py-8 px-4 sm:px-8 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-950/50 dark:to-indigo-950  dark:text-gray-100 text-gray-800  relative overflow-hidden">
       <FloatingParticles />
       
-      <div className="max-w-6xl mx-auto space-y-16 relative z-10">
+      <div className="max-w-6xl mx-auto space-y-16 relative z-10"></div>
         <AnimatePresence mode="wait">
           <motion.section
             initial={{ opacity: 0, y: 40 }}
@@ -1063,7 +1092,6 @@ export default function PitchDeckDetail() {
                       { label: "Industry", value: pitchDeck.industry, icon: <TrendingUp />, color: "from-green-500 to-emerald-500" },
                       { label: "Stage", value: pitchDeck.startup_stage, icon: <Target />, color: "from-purple-500 to-violet-500" },
                     ].map((item, index) => (
-                      <>
                       <motion.div
                         key={item.label}
                         initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
@@ -1083,8 +1111,6 @@ export default function PitchDeckDetail() {
                           {item.value}
                         </p>
                       </motion.div>
-                      </>
-
                     ))}
                   </div>
 
@@ -1157,10 +1183,8 @@ export default function PitchDeckDetail() {
               onClick={async () => {
                 try {
                 if (!aiContent && !competitorContent && !validationContent) {
-                  toast({
-                  title: "No content to save",
-                  description: "Please generate content first before saving.",
-                  variant: "destructive",
+                  toast("No content to save", {
+                    description: "Please generate AI insights, competitor analysis, or idea validation first before saving.",
                   });
                   return;
                 }
@@ -1187,17 +1211,21 @@ export default function PitchDeckDetail() {
                 
                 if (!response.ok) throw new Error("Failed to save content");
                 
-                toast({
-                  title: "Success",
-                  description: "Content saved successfully!",
-                  variant: "default",
+                toast("Content saved successfully!", {
+                  description: "All your generated content has been saved and can be accessed later.",
+                  action: {
+                    label: "View Content",
+                    onClick: () => {
+                      if (aiContent && aiSectionRef.current) {
+                        aiSectionRef.current.scrollIntoView({ behavior: "smooth" });
+                      }
+                    },
+                  },
                 });
                 } catch (error) {
                 console.error("Failed to save content:", error);
-                toast({
-                  title: "Error",
-                  description: error instanceof Error ? error.message : "Failed to save content",
-                  variant: "destructive",
+                toast("Failed to save content", {
+                  description: error instanceof Error ? error.message : "An error occurred while saving your content. Please try again.",
                 });
                 }
               }}
@@ -1302,6 +1330,5 @@ export default function PitchDeckDetail() {
           </motion.section>
         </AnimatePresence>
       </div>
-    </div>
   );
 }

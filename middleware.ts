@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 export async function middleware(req: NextRequest) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Make sure this is NEVER exposed to client
+    process.env.SUPABASE_SERVICE_ROLE_KEY! 
   );
 
   const token = req.cookies.get("sb-access-token")?.value;

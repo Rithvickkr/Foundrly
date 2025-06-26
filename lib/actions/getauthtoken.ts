@@ -12,6 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export const getAuthToken = async () => {
   const { data, error } = await supabase.auth.getSession();
   
+  
   if (error || !data.session) {
     console.error("Error fetching session:", error);
     return null;
