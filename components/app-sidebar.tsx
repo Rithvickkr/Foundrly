@@ -154,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           const sortedDecks = [...decks].sort((a, b) => 
             new Date(b.created_at).getTime() - 
             new Date(a.created_at).getTime()
-          ).slice(0, 3);
+          );
 
           // Save to localStorage
           localStorage.setItem(PITCH_DECKS_STORAGE_KEY, JSON.stringify(sortedDecks));

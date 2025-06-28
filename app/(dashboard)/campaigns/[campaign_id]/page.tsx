@@ -318,7 +318,7 @@ export default function CampaignDetailPage() {
             opacity: 1,
             transition: {
                 duration: 0.7,
-                ease: [0.6, -0.05, 0.01, 0.99],
+                ease: [0.25, 0.46, 0.45, 0.94] as const,
             },
         },
     };
@@ -328,14 +328,14 @@ export default function CampaignDetailPage() {
             height: 'auto',
             transition: {
                 duration: 0.4,
-                ease: 'easeOut',
+                ease: [0.25, 0.46, 0.45, 0.94] as const,
             },
         },
         expanded: {
             height: 'auto',
             transition: {
                 duration: 0.4,
-                ease: 'easeOut',
+                ease: [0.25, 0.46, 0.45, 0.94] as const,
             },
         },
     };

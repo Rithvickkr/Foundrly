@@ -21,7 +21,7 @@ export default function ProtectedPage() {
         // Navigate to home after 2 seconds
         setTimeout(() => {
           router.push("/appdash");
-        }, 5000);
+        }, 2000);
       }
     };
 

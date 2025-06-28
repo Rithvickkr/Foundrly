@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { themeManager } from "@/lib/theme/ThemeManager";
 import { supabase } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
-import { Sidebar, Sun, Moon, Sparkles } from "lucide-react";
+import { Sidebar, Sun, Moon, Sparkles, ArrowLeft } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,6 +14,7 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const router = useRouter();
+  const pathname = usePathname();
   const { toggleSidebar } = useSidebar();
 
   useEffect(() => {
@@ -42,14 +43,25 @@ export function Navbar() {
     <nav className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-800 text-white h-14 shadow-lg dark:shadow-slate-900/50 border-b border-transparent dark:border-slate-700/50 backdrop-blur-sm transition-all duration-300">
       <div className="flex items-center space-x-3">
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            onClick={toggleSidebar}
-            className="p-2 rounded-full text-white hover:bg-white/10 dark:hover:bg-slate-700/80 dark:text-slate-200 transition-all duration-200 ease-in-out transform hover:scale-110"
-            aria-label="Toggle sidebar"
-          >
-            <Sidebar className="h-5 w-5" />
-          </Button>
+          {pathname?.startsWith('/Slideplayground') ? (
+            <Button
+              variant="ghost"
+              onClick={() => router.push('/appdash')}
+              className="p-2 rounded-full text-white hover:bg-white/10 dark:hover:bg-slate-700/80 dark:text-slate-200 transition-all duration-200 ease-in-out transform hover:scale-110"
+              aria-label="Back to dashboard"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={toggleSidebar}
+              className="p-2 rounded-full text-white hover:bg-white/10 dark:hover:bg-slate-700/80 dark:text-slate-200 transition-all duration-200 ease-in-out transform hover:scale-110"
+              aria-label="Toggle sidebar"
+            >
+              <Sidebar className="h-5 w-5" />
+            </Button>
+          )}
           {/* <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-white" />
             <span className="font-bold text-lg hidden sm:inline">FounderGPT</span>

@@ -606,9 +606,11 @@ export default function PitchDeckDetail() {
         
         if (data.generation) {
           const gen = data.generation;
+          console.log(gen)  
           
-          if (gen.ai_content) {
-            setAiContent({ generatedcontent: gen.ai_content });
+          if (gen.pitch) {
+            setAiContent({ generatedcontent: gen.pitch });
+            console.log("AI content loaded:", gen.pitch);
           }
           
           if (gen.competitor_analysis) {
@@ -1042,7 +1044,7 @@ export default function PitchDeckDetail() {
     <div className="min-h-screen py-8 px-4 sm:px-8 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-950/50 dark:to-indigo-950  dark:text-gray-100 text-gray-800  relative overflow-hidden">
       <FloatingParticles />
       
-      <div className="max-w-6xl mx-auto space-y-16 relative z-10"></div>
+      <div className="max-w-6xl mx-auto space-y-16 relative z-10">
         <AnimatePresence mode="wait">
           <motion.section
             initial={{ opacity: 0, y: 40 }}
@@ -1147,7 +1149,7 @@ export default function PitchDeckDetail() {
               <ActionButton
               onClick={() => generateContent("ai")}
               icon={<Brain />}
-              label="AI Insights"
+              label="AI Pitch"
               loading={aiLoading}
               tooltip="Generate comprehensive AI-driven pitch insights"
               variant="primary"
@@ -1184,7 +1186,7 @@ export default function PitchDeckDetail() {
                 try {
                 if (!aiContent && !competitorContent && !validationContent) {
                   toast("No content to save", {
-                    description: "Please generate AI insights, competitor analysis, or idea validation first before saving.",
+                    description: "Please generate AI Pitch, competitor analysis, or idea validation first before saving.",
                   });
                   return;
                 }
@@ -1238,6 +1240,7 @@ export default function PitchDeckDetail() {
 
             {/* Content Sections with enhanced animations */}
             {aiContent && (
+              
               <ContentSectionComponent
                 title="AI-Generated Pitch Insights"
                 icon={<Brain className="text-blue-500 dark:text-indigo-400" />}
@@ -1330,5 +1333,6 @@ export default function PitchDeckDetail() {
           </motion.section>
         </AnimatePresence>
       </div>
+    </div>
   );
 }
