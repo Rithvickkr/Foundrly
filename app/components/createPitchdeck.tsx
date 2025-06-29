@@ -400,7 +400,7 @@ export function CreatePitchDeck() {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/pitchdecks", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/pitchdecks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

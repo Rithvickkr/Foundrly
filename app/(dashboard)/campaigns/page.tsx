@@ -44,7 +44,7 @@ export default function CampaignsPage() {
     const fetchCampaigns = async () => {
         try {
             const token = await getAuthToken();
-            const response = await fetch('http://127.0.0.1:8000/allcampaigns', {
+            const response = await fetch('https://pitchdeckbend.onrender.com/allcampaigns', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

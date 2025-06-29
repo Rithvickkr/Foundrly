@@ -109,7 +109,7 @@ export default function InvestorDashboard() {
       setError(null);
       const Token = await getAuthToken();
       const response = await fetch(
-        `http://127.0.0.1:8000/campaigns/${campaign_id}/investors/${investor_id}`,
+        `https://pitchdeckbend.onrender.com/campaigns/${campaign_id}/investors/${investor_id}`,
         {
           method: "GET",
           headers: {
@@ -139,7 +139,7 @@ export default function InvestorDashboard() {
     try {
       const token = await getAuthToken();
       const response = await fetch(
-        `http://127.0.0.1:8000/campaigns/${campaign_id}/investors/${investor_id}/outreach-tracking`,
+        `https://pitchdeckbend.onrender.com/campaigns/${campaign_id}/investors/${investor_id}/outreach-tracking`,
         {
           method: "GET",
           headers: {
@@ -191,7 +191,7 @@ export default function InvestorDashboard() {
     try {
       const token = await getAuthToken();
       const response = await fetch(
-        "http://127.0.0.1:8000/outreach/generate-cold-email",
+        "https://pitchdeckbend.onrender.com/outreach/generate-cold-email",
         {
           method: "POST",
           headers: {
@@ -228,7 +228,7 @@ export default function InvestorDashboard() {
     setIsSending(true);
     try {
       const token = await getAuthToken();
-      const response = await fetch("http://127.0.0.1:8000/outreach/send-email", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/outreach/send-email", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -271,7 +271,7 @@ export default function InvestorDashboard() {
     try {
       const token = await getAuthToken();
       const response = await fetch(
-        `http://127.0.0.1:8000/outreach-tracking/${emailData.id}`,
+        `https://pitchdeckbend.onrender.com/outreach-tracking/${emailData.id}`,
         {
           method: "PUT",
           headers: {
@@ -314,7 +314,7 @@ export default function InvestorDashboard() {
       const token = await getAuthToken();
       console.log("Deleting email with ID:", id);
       const response = await fetch(
-        `http://127.0.0.1:8000/outreach-tracking/${id}`,
+        `https://pitchdeckbend.onrender.com/outreach-tracking/${id}`,
         {
           method: "DELETE",
           headers: {

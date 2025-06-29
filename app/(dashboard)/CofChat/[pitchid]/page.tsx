@@ -223,7 +223,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
     try {
       setLoading(true);
       const token = await getAuthToken();
-      const response = await fetch(`http://127.0.0.1:8000/cofounder/chats/${effectivePitchDeckId}`, {
+      const response = await fetch(`https://pitchdeckbend.onrender.com/cofounder/chats/${effectivePitchDeckId}`, {
         headers: {
           'authorization': `Bearer ${token}`
         }
@@ -340,7 +340,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
     try {
       const token = await getAuthToken();
 
-      const response = await fetch('http://127.0.0.1:8000/cofounder/save', {
+      const response = await fetch('https://pitchdeckbend.onrender.com/cofounder/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -440,7 +440,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
     setIsDeleting(true);
     try {
       const token = await getAuthToken();
-      const response = await fetch(`http://127.0.0.1:8000/cofounder/chats/${chatId}`, {
+      const response = await fetch(`https://pitchdeckbend.onrender.com/cofounder/chats/${chatId}`, {
         method: 'DELETE',
         headers: {
           'authorization': `Bearer ${token}`

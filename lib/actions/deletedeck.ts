@@ -8,7 +8,7 @@ export async function deleteDeck(pitchId: UUID): Promise<{ message: string }> {
     if (!token) {
         throw new Error('No authentication token found');
         }
-    const res = await fetch(`http://127.0.0.1:8000/pitchdecks/${pitchId}`, {
+    const res = await fetch(`https://pitchdeckbend.onrender.com/pitchdecks/${pitchId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

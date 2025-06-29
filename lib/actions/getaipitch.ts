@@ -18,7 +18,7 @@ export interface PitchDeckRequest {
     try {
     const token=await getAuthToken() 
     // console.error("token yeh hai"+token)   // Retrieve JWT token from local storage
-      const response = await fetch("http://127.0.0.1:8000/generate-pitch", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/generate-pitch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -204,7 +204,7 @@ export default function Dashboard() {
       // Call the helper chat API
 
       const token = await getAuthToken();
-      const response = await fetch("http://127.0.0.1:8000/helper-chat", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/helper-chat", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

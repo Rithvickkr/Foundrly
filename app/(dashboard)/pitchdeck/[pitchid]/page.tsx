@@ -545,7 +545,7 @@ export default function PitchDeckDetail() {
         const token = await getAuthToken();
         if (!token) throw new Error("User not authenticated");
 
-        const response = await fetch(`http://127.0.0.1:8000/pitchdecks/${id}`, {
+        const response = await fetch(`https://pitchdeckbend.onrender.com/pitchdecks/${id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -584,7 +584,7 @@ export default function PitchDeckDetail() {
         const token = await getAuthToken();
         if (!token) throw new Error("User not authenticated");
         
-        const response = await fetch(`http://127.0.0.1:8000/get-gen/${id}`, {
+        const response = await fetch(`https://pitchdeckbend.onrender.com/get-gen/${id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -811,7 +811,7 @@ export default function PitchDeckDetail() {
       const token = await getAuthToken();
       if (!token) throw new Error("User not authenticated");
 
-      const response = await fetch("http://127.0.0.1:8000/validator", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/validator", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1202,7 +1202,7 @@ export default function PitchDeckDetail() {
                   validation_reasoning: validationContent?.reasoning || null,
                 };
                 
-                const response = await fetch("http://127.0.0.1:8000/save-content", {
+                const response = await fetch("https://pitchdeckbend.onrender.com/save-content", {
                   method: "POST",
                   headers: {
                   Authorization: `Bearer ${token}`,

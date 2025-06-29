@@ -9,7 +9,7 @@ export interface UserProfile {
 export async function getUser(): Promise<UserProfile | null> {
   try {
     const token = await getAuthToken();
-    const response = await fetch("http://127.0.0.1:8000/user/profile", {
+    const response = await fetch("https://pitchdeckbend.onrender.com/user/profile", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

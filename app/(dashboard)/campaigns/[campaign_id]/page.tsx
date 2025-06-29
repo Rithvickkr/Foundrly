@@ -135,7 +135,7 @@ export default function CampaignDetailPage() {
     const fetchCampaign = async () => {
         try {
             const token = await getAuthToken();
-            const response = await fetch(`http://127.0.0.1:8000/campaigns/${campaignId}`, {
+            const response = await fetch(`https://pitchdeckbend.onrender.com/campaigns/${campaignId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export default function CampaignDetailPage() {
     const fetchInvestors = async () => {
         try {
             const token = await getAuthToken();
-            const response = await fetch(`http://127.0.0.1:8000/campaigns/${campaignId}/investors`, {
+            const response = await fetch(`https://pitchdeckbend.onrender.com/campaigns/${campaignId}/investors`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ export default function CampaignDetailPage() {
                     : [],
             };
 
-            const response = await fetch(`http://127.0.0.1:8000/campaigns/${campaignId}/investors`, {
+            const response = await fetch(`https://pitchdeckbend.onrender.com/campaigns/${campaignId}/investors`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -224,7 +224,7 @@ export default function CampaignDetailPage() {
     const removeInvestor = async (investorId: string) => {
         try {
             const token = await getAuthToken();
-            const response = await fetch(`http://127.0.0.1:8000/campaigns/${campaignId}/investors/${investorId}`, {
+            const response = await fetch(`https://pitchdeckbend.onrender.com/campaigns/${campaignId}/investors/${investorId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -248,7 +248,7 @@ export default function CampaignDetailPage() {
 
         try {
             const token = await getAuthToken();
-            const response = await fetch(`http://127.0.0.1:8000/campaigns/${campaignId}`, {
+            const response = await fetch(`https://pitchdeckbend.onrender.com/campaigns/${campaignId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,

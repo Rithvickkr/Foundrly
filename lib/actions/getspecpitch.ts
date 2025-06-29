@@ -16,7 +16,7 @@ export const getSpecificDeck = async (deckId: string): Promise<PitchDeckResponse
   try {
     const token = await getAuthToken();
 
-    const response = await fetch(`http://127.0.0.1:8000/pitchdecks/${deckId}`, {
+    const response = await fetch(`https://pitchdeckbend.onrender.com/pitchdecks/${deckId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

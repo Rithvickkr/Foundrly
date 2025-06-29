@@ -81,7 +81,7 @@ export default function OutreachCampaignPage() {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/pitchdecks", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/pitchdecks", {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -171,7 +171,7 @@ export default function OutreachCampaignPage() {
         return;
       }
 
-      const response = await fetch("http://127.0.0.1:8000/campaigns", {
+      const response = await fetch("https://pitchdeckbend.onrender.com/campaigns", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
