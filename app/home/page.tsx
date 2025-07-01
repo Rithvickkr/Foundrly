@@ -61,8 +61,8 @@ const HOME = () => {
   ];
 
   // Custom easing for smooth animations
-  const smoothEasing = [0.6, 0.05, 0.01, 0.99];
-  const bounceEasing = [0.68, -0.55, 0.265, 1.55];
+  const smoothEasing = [0.6, 0.05, 0.01, 0.99] as const;
+  const bounceEasing = [0.68, -0.55, 0.265, 1.55] as const;
 
   // Handle mounting
   useEffect(() => {
@@ -183,7 +183,7 @@ const HOME = () => {
     {
       name: "Sarah Chen",
       role: "Founder, TechFlow",
-      content: "FounderGPT turned my napkin sketch into a $2M funding round. The AI validation caught market gaps I never saw.",
+      content: "Foundrly turned my napkin sketch into a $2M funding round. The AI validation caught market gaps I never saw.",
       rating: 5,
       avatar: "SC",
     },
@@ -197,7 +197,7 @@ const HOME = () => {
     {
       name: "Emily Watson",
       role: "Y Combinator Mentor",
-      content: "I've seen thousands of pitches. FounderGPT-generated decks are consistently in the top 10% for clarity and impact.",
+      content: "I've seen thousands of pitches. Foundrly-generated decks are consistently in the top 10% for clarity and impact.",
       rating: 5,
       avatar: "EW",
     },
@@ -317,7 +317,7 @@ const HOME = () => {
               Build Your Startup.
             </h1>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-8 bg-gradient-to-r from-cyan-500 to-purple-500 bg-clip-text text-transparent leading-tight">
-              FounderGPT Powers It.
+              Foundrly Powers It.
             </h2>
           </motion.div>
 
@@ -372,14 +372,14 @@ const HOME = () => {
               }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push("/login")}
-              aria-label="Try FounderGPT Now"
+              aria-label="Try Foundrly Now"
             >
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-purple-600 opacity-0"
                 whileHover={{ opacity: 0.3 }}
                 transition={{ duration: 0.3 }}
               />
-              Try FounderGPT Now
+              Try Foundrly Now
               <ArrowRight className="inline ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
             </motion.button>
           </motion.div>
@@ -533,7 +533,7 @@ const HOME = () => {
             className="text-center mb-16 sm:mb-20 lg:mb-24"
           >
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">
-              Founders Love FounderGPT
+              Founders Love Foundrly
             </h2>
           </motion.div>
 
@@ -623,7 +623,7 @@ const HOME = () => {
               See It In Action
             </h2>
             <p className="text-lg sm:text-xl text-gray-400 px-4">
-              Experience FounderGPT crafting your startup package live.
+              Experience Foundrly crafting your startup package live.
             </p>
           </motion.div>
 
@@ -893,7 +893,7 @@ const HOME = () => {
               Co-Found with AI Today
             </h2>
             <p className="text-lg sm:text-xl text-gray-400 mb-12 px-4">
-              Join the future of entrepreneurship with FounderGPT.
+              Join the future of entrepreneurship with Foundrly.
             </p>
 
             <div className="flex flex-col items-center">
@@ -973,7 +973,7 @@ const HOME = () => {
               transition={{ duration: 0.6, ease: smoothEasing }}
             >
               <Brain className="w-10 h-10 text-cyan-400 mr-4" />
-              <span className="text-2xl font-bold">FounderGPT</span>
+              <span className="text-2xl font-bold">Foundrly</span>
             </motion.div>
 
             <div className="flex flex-wrap justify-center lg:justify-end gap-8 text-gray-400">
@@ -1014,7 +1014,7 @@ const HOME = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <p>
-              © 2025 FounderGPT. Empowering the next generation of founders.
+              © 2025 Foundrly. Empowering the next generation of founders.
             </p>
           </motion.div>
         </div>

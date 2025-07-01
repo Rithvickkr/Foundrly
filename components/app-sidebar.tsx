@@ -198,14 +198,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a href="/appdash" className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-gray-200/50 dark:hover:bg-[#1E293B]/80 transition-colors">
                 <div className="bg-gradient-to-br from-indigo-600 to-purple-600 dark:from-[#3B82F6] dark:to-[#FACC15] text-white flex aspect-square size-10 items-center justify-center rounded-lg shadow-md">
-                  <Command className="size-5" />
+                  <Rocket className="size-5" />
                 </div>
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-[#3B82F6] dark:to-[#FACC15]">
-                    FounderGPT
+                  Foundrly
                   </span>
                   <span className="text-xs text-gray-600 dark:text-[#F8FAFC]/70">
-                    AI-Powered Startup Advisor
+                  AI-Powered Startup Advisor
                   </span>
                 </div>
               </a>
