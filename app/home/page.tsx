@@ -138,12 +138,6 @@ const HOME = () => {
       gradient: "from-orange-600 to-red-600",
     },
     {
-      icon: Mic,
-      title: "Voiceover with Avatar Video",
-      description: "AI-generated presentations with professional voiceovers and avatars",
-      gradient: "from-indigo-600 to-purple-600",
-    },
-    {
       icon: Bot,
       title: "AI-Powered Co-Founder",
       description: "Your AI co-founder that works 24/7 to build your startup",
