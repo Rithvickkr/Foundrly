@@ -641,7 +641,7 @@ const HOME = () => {
               {[
                 { id: "input", label: "Idea Input", icon: FileCode },
                 { id: "slides", label: "Deck Slides", icon: FileText },
-                { id: "email", label: "Investor Email", icon: Mail },
+                { id: "email", label: "AI Cofounder chat", icon: Mail },
               ].map((tab) => (
                 <motion.button
                   key={tab.id}
