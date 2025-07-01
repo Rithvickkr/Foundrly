@@ -43,7 +43,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { getUser } from "@/lib/actions/getuser";
-
+import { useRouter } from "next/navigation";
 const data = {
  
   navMain: [
@@ -109,6 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     email: "",
     avatar: "",
   });
+  const router = useRouter();
   
   useEffect(() => {
     const fetchUser = async () => {
@@ -301,9 +302,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <h3 className="text-xs font-medium text-gray-500 dark:text-[#F8FAFC]/60 uppercase tracking-wider">
                 Recent Projects
               </h3>
-              <button className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#1E293B] text-gray-500 dark:text-[#F8FAFC]/70">
-                <PlusCircle className="size-4" />
-              </button>
+                  <button className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#1E293B] text-gray-500 dark:text-[#F8FAFC]/70"
+                  onClick={() => router.push("/createpitchdeck")}
+                  >
+                  <PlusCircle className="size-4" />
+                  </button>
             </div>
             
             <div className="mt-4 space-y-1">

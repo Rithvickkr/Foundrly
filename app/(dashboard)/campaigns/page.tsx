@@ -182,20 +182,64 @@ export default function CampaignsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen transition-colors duration-500 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-                <motion.div className="flex flex-col items-center space-y-6">
-                    <motion.div
-                        animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-                        transition={{ rotate: { duration: 1.5, repeat: Infinity, ease: 'linear' }, scale: { duration: 1.5, repeat: Infinity } }}
-                        className="w-12 h-12 border-4 border-t-transparent rounded-full border-blue-600 dark:border-blue-400"
-                    />
-                    <motion.p
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1.8, repeat: Infinity }}
-                        className="text-lg font-light text-gray-700 dark:text-gray-300"
-                    >
-                        Discovering campaigns...
-                    </motion.p>
+            <div className="min-h-screen relative transition-colors duration-500 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 overflow-hidden">
+                {/* Floating Particles or Blobs */}
+                <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-400/30 blur-3xl rounded-full animate-pulse-slow pointer-events-none" />
+                <div className="absolute -bottom-40 right-0 w-96 h-96 bg-blue-400/30 blur-3xl rounded-full animate-pulse-slow pointer-events-none" />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.7, y: 40 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.7, type: "spring", stiffness: 120 }}
+                >
+                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl border-2 border-blue-200/60 dark:border-indigo-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden relative">
+                        <div className="p-12 flex flex-col items-center gap-8">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                className="relative"
+                            >
+                                <span className="absolute -inset-2 rounded-full bg-gradient-to-tr from-blue-400/30 via-indigo-400/20 to-purple-400/30 blur-lg animate-pulse pointer-events-none" />
+                                {/* Loader Icon */}
+                                <svg className="w-20 h-20 text-blue-600 dark:text-indigo-400 drop-shadow-lg" fill="none" viewBox="0 0 24 24">
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    />
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                    />
+                                </svg>
+                            </motion.div>
+                            <motion.p
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="text-2xl font-bold text-blue-700 dark:text-indigo-300 tracking-tight"
+                            >
+                                Loading Campaigns...
+                            </motion.p>
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
+                                transition={{ duration: 1.8, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                                className="h-2 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-full shadow-lg"
+                            />
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: [0, 1, 0] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className="text-sm text-gray-500 dark:text-gray-400 mt-2"
+                            >
+                                Please wait while we fetch your campaigns...
+                            </motion.p>
+                        </div>
+                    </div>
                 </motion.div>
             </div>
         );

@@ -37,6 +37,7 @@ import {
 import { getDecks } from "@/lib/actions/getdecks";
 import { deleteDeck } from "@/lib/actions/deletedeck";
 import { UUID } from "crypto";
+import { toast } from "sonner";
 
 interface PitchDeckResponseDetails {
   id: any;
@@ -66,6 +67,10 @@ export default function DecksPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [likedDecks, setLikedDecks] = useState<Set<string>>(new Set());
   const [bookmarkedDecks, setBookmarkedDecks] = useState<Set<string>>(new Set());
+  // Add state for delete modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deckToDelete, setDeckToDelete] = useState<{ id: UUID; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function loadDecks() {
@@ -106,8 +111,10 @@ export default function DecksPage() {
       const newSet = new Set(prev);
       if (newSet.has(deckId)) {
         newSet.delete(deckId);
+        toast.success("Removed from favorites");
       } else {
         newSet.add(deckId);
+        toast.success("Added to favorites");
       }
       return newSet;
     });
@@ -119,8 +126,10 @@ export default function DecksPage() {
       const newSet = new Set(prev);
       if (newSet.has(deckId)) {
         newSet.delete(deckId);
+        toast.success("Bookmark removed");
       } else {
         newSet.add(deckId);
+        toast.success("Deck bookmarked");
       }
       return newSet;
     });
@@ -166,15 +175,34 @@ export default function DecksPage() {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  const handleDelete = async (id: UUID) => {
-    if (confirm("Are you sure you want to delete this pitch deck?")) {
-      try {
-        await deleteDeck(id);
-        setDecks(decks.filter((deck) => deck.id !== id));
-      } catch (error) {
-        console.error("Failed to delete deck:", error);
-      }
+  // Updated delete handlers
+  const handleDeleteClick = (id: UUID, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeckToDelete({ id, title });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deckToDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      await deleteDeck(deckToDelete.id);
+      setDecks(decks.filter((deck) => deck.id !== deckToDelete.id));
+      toast.success("Pitch deck deleted successfully");
+      setShowDeleteModal(false);
+      setDeckToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete deck:", error);
+      toast.error("Failed to delete pitch deck. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setDeckToDelete(null);
   };
 
   const industries = [
@@ -263,8 +291,89 @@ export default function DecksPage() {
     </motion.div>
   );
 
+  // Delete Confirmation Modal Component
+  const DeleteModal = () => (
+    <AnimatePresence>
+      {showDeleteModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={handleDeleteCancel}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-200/50 dark:border-gray-700/50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center mb-2">
+              Delete Pitch Deck
+            </h3>
+
+            <p className="text-gray-600 dark:text-gray-300 text-center mb-2">
+              Are you sure you want to delete this pitch deck?
+            </p>
+
+            {deckToDelete && (
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200 text-center mb-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2">
+                "{deckToDelete.title}"
+              </p>
+            )}
+
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-6">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleDeleteCancel}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium disabled:opacity-50"
+              >
+                Cancel
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/20">
+      {/* Delete Modal */}
+      <DeleteModal />
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation */}
@@ -700,10 +809,7 @@ export default function DecksPage() {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(deck.id);
-                                }}
+                                onClick={(e) => handleDeleteClick(deck.id, deck.title, e)}
                                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 text-gray-400 hover:text-red-500 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />

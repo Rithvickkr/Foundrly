@@ -969,35 +969,48 @@ export default function PitchDeckDetail() {
   // Loading state with enhanced animation
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:from-gray-900 dark:to-blue-950 px-4 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200/60 via-indigo-200/70 to-purple-200/60 dark:from-gray-900 dark:via-blue-950/80 dark:to-indigo-950 px-4 relative overflow-hidden">
+        {/* Animated floating particles and blurred color blobs */}
         <FloatingParticles />
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-400/30 blur-3xl rounded-full animate-pulse-slow pointer-events-none" />
+        <div className="absolute -bottom-40 right-0 w-96 h-96 bg-blue-400/30 blur-3xl rounded-full animate-pulse-slow pointer-events-none" />
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+          initial={{ opacity: 0, scale: 0.7, y: 40 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.7, type: "spring", stiffness: 120 }}
         >
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-blue-200/50 dark:border-gray-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
-            <CardContent className="p-12 flex flex-col items-center gap-6">
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl border-2 border-blue-200/60 dark:border-indigo-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden relative">
+            <CardContent className="p-12 flex flex-col items-center gap-8">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="relative"
               >
-                <Loader2 className="w-16 h-16 text-blue-600 dark:text-indigo-600" />
+                <span className="absolute -inset-2 rounded-full bg-gradient-to-tr from-blue-400/30 via-indigo-400/20 to-purple-400/30 blur-lg animate-pulse pointer-events-none" />
+                <Loader2 className="w-20 h-20 text-blue-600 dark:text-indigo-400 drop-shadow-lg" />
               </motion.div>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-xl font-semibold text-gray-700 dark:text-gray-400"
+                className="text-2xl font-bold text-blue-700 dark:text-indigo-300 tracking-tight"
               >
                 Loading Pitch Deck...
               </motion.p>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                transition={{ duration: 1.8, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                className="h-2 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-full shadow-lg"
               />
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-sm text-gray-500 dark:text-gray-400 mt-2"
+              >
+                Please wait while we fetch your pitch deck details...
+              </motion.p>
             </CardContent>
           </Card>
         </motion.div>

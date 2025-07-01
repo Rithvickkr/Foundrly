@@ -422,179 +422,179 @@ export default function Dashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="mb-8"
+        className="mb-6"
       >
-        <Card className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-xl rounded-3xl overflow-hidden border border-white/30 dark:border-gray-700/30">
+        <Card className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-white/30 dark:border-gray-700/30">
           {/* Header Section */}
-          <CardHeader className="relative p-8 bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-800/80 dark:via-blue-900/20 dark:to-indigo-900/20">
+          <CardHeader className="relative p-6 bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-800/80 dark:via-blue-900/20 dark:to-indigo-900/20">
         <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent dark:from-gray-800/50" />
         <div className="relative z-10">
-          <CardTitle className="text-3xl font-bold flex items-center text-gray-800 dark:text-gray-100">
-            <motion.div
+          <CardTitle className="text-2xl font-bold flex items-center text-gray-800 dark:text-gray-100">
+        <motion.div
           animate={{ 
-            scale: [1, 1.1, 1],
-            rotate: [0, 5, -5, 0] 
+        scale: [1, 1.1, 1],
+        rotate: [0, 5, -5, 0] 
           }}
           transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
+        duration: 4, 
+        repeat: Infinity, 
+        ease: "easeInOut" 
           }}
-          className="mr-4"
-            >
-          <BarChart3 className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-            </motion.div>
-            Dashboard Overview
+          className="mr-3"
+        >
+          <BarChart3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+        </motion.div>
+        Dashboard Overview
           </CardTitle>
-          <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-            Track your progress and manage your pitch decks
+          <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
+        Track your progress and manage your pitch decks
           </p>
         </div>
           </CardHeader>
 
           {/* Stats Grid */}
-          <CardContent className="p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <CardContent className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           
           {/* Total Decks Card */}
           <motion.div 
-            variants={statsVariants}
-            whileHover={{ y: -8, scale: 1.02 }}
-            transition={{ duration: 0.3 }}
+        variants={statsVariants}
+        whileHover={{ y: -6, scale: 1.02 }}
+        transition={{ duration: 0.3 }}
           >
-            <Card className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 border-0 shadow-2xl rounded-2xl group">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 border-0 shadow-xl rounded-xl group">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-            <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
-              Total Decks
-            </p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            >
-              <p className="text-5xl font-bold text-white">
-                {totalDecks}
-              </p>
-            </motion.div>
-            <p className="text-white/70 text-sm">
-              Pitch decks created
-            </p>
-              </div>
-              <motion.div
-            className="relative"
-            whileHover={{ rotate: 15, scale: 1.1 }}
-            transition={{ duration: 0.3 }}
-              >
-            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
-              <Presentation className="w-10 h-10 text-white" />
-            </div>
-            <motion.div
-              className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-              </motion.div>
-            </div>
+          <CardContent className="p-5 relative z-10">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+        <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
+          Total Decks
+        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+        >
+          <p className="text-4xl font-bold text-white">
+            {totalDecks}
+          </p>
+        </motion.div>
+        <p className="text-white/70 text-sm">
+          Pitch decks created
+        </p>
+          </div>
+          <motion.div
+        className="relative"
+        whileHover={{ rotate: 15, scale: 1.1 }}
+        transition={{ duration: 0.3 }}
+          >
+        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+          <Presentation className="w-8 h-8 text-white" />
+        </div>
+        <motion.div
+          className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+          </motion.div>
+        </div>
           </CardContent>
-            </Card>
+        </Card>
           </motion.div>
 
           {/* Recent Activity Card */}
           <motion.div 
-            variants={statsVariants}
-            whileHover={{ y: -8, scale: 1.02 }}
-            transition={{ duration: 0.3 }}
+        variants={statsVariants}
+        whileHover={{ y: -6, scale: 1.02 }}
+        transition={{ duration: 0.3 }}
           >
-            <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 border-0 shadow-2xl rounded-2xl group">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 border-0 shadow-xl rounded-xl group">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-            <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
-              This Month
-            </p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-            >
-              <p className="text-5xl font-bold text-white">
-                +{Math.max(0, totalDecks)}
-              </p>
-            </motion.div>
-            <p className="text-white/70 text-sm">
-              Decks this period
-            </p>
-              </div>
-              <motion.div
-            className="relative"
-            whileHover={{ rotate: 15, scale: 1.1 }}
-            transition={{ duration: 0.3 }}
-              >
-            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
-              <TrendingUp className="w-10 h-10 text-white" />
-            </div>
-            <motion.div
-              className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            />
-              </motion.div>
-            </div>
+          <CardContent className="p-5 relative z-10">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+        <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
+          This Month
+        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+        >
+          <p className="text-4xl font-bold text-white">
+            +{Math.max(0, totalDecks)}
+          </p>
+        </motion.div>
+        <p className="text-white/70 text-sm">
+          Decks this period
+        </p>
+          </div>
+          <motion.div
+        className="relative"
+        whileHover={{ rotate: 15, scale: 1.1 }}
+        transition={{ duration: 0.3 }}
+          >
+        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+          <TrendingUp className="w-8 h-8 text-white" />
+        </div>
+        <motion.div
+          className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        />
+          </motion.div>
+        </div>
           </CardContent>
-            </Card>
+        </Card>
           </motion.div>
         </div>
 
         {/* Quick Action Card */}
         <motion.div 
           variants={statsVariants}
-          whileHover={{ y: -8, scale: 1.02 }}
+          whileHover={{ y: -6, scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 border-0 shadow-2xl rounded-2xl group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-            <CardContent className="p-6 relative z-10">
-          <div className="text-center space-y-6">
-            <motion.div
-              className="mx-auto w-fit"
-              whileHover={{ scale: 1.1, rotate: 360 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
-            <Zap className="w-12 h-12 text-white" />
-              </div>
-            </motion.div>
-            
-            <div className="space-y-3">
-              <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
-            Quick Start
-              </p>
-              <h3 className="text-xl font-bold text-white">
-            Ready to Create?
-              </h3>
-              <p className="text-white/70 text-sm leading-relaxed">
-            Launch a new pitch deck with AI assistance
-              </p>
-            </div>
-
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm rounded-xl px-8 py-3 font-semibold text-base shadow-lg transition-all duration-300 hover:shadow-xl"
-            onClick={() => router.push("/createpitchdeck")}
-              >
-            <Plus className="w-5 h-5 mr-2" />
-            Create Deck
-              </Button>
-            </motion.div>
+          <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 border-0 shadow-xl rounded-xl group">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+        <CardContent className="p-5 relative z-10">
+          <div className="text-center space-y-4">
+        <motion.div
+          className="mx-auto w-fit"
+          whileHover={{ scale: 1.1, rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
+        <Zap className="w-8 h-8 text-white" />
           </div>
-            </CardContent>
+        </motion.div>
+        
+        <div className="space-y-2">
+          <p className="text-white/80 text-sm font-medium uppercase tracking-wider">
+        Quick Start
+          </p>
+          <h3 className="text-lg font-bold text-white">
+        Ready to Create?
+          </h3>
+          <p className="text-white/70 text-sm leading-relaxed">
+        Launch a new pitch deck with AI assistance
+          </p>
+        </div>
+
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Button 
+        className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm rounded-xl px-6 py-2 font-semibold text-sm shadow-lg transition-all duration-300 hover:shadow-xl"
+        onClick={() => router.push("/createpitchdeck")}
+          >
+        <Plus className="w-4 h-4 mr-2" />
+        Create Deck
+          </Button>
+        </motion.div>
+          </div>
+        </CardContent>
           </Card>
         </motion.div>
           </CardContent>
@@ -1211,22 +1211,29 @@ export default function Dashboard() {
 
       {/* Chat Toggle Button */}
       <motion.div
-      className={`z-50 fixed bottom-24 right-6 transition-all duration-300 ${
-        chatOpen
-        ? "opacity-0 pointer-events-none scale-90"
-        : "opacity-100 scale-100"
-      }`}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+        className="z-50 fixed bottom-24 right-6"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ 
+          scale: chatOpen ? 0 : 1, 
+          opacity: chatOpen ? 0 : 1 
+        }}
+        transition={{ delay: chatOpen ? 0 : 1, type: "spring", stiffness: 200 }}
+        whileHover={!chatOpen ? { scale: 1.1 } : {}}
+        whileTap={!chatOpen ? { scale: 0.9 } : {}}
+        style={{
+          pointerEvents: chatOpen ? 'none' : 'auto',
+          visibility: chatOpen ? 'hidden' : 'visible'
+        }}
       >
-      <Button
-        className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full p-4 shadow-2xl relative overflow-hidden group"
-        onClick={() => setChatOpen(true)}
-        aria-label="Open AI helper chat"
-      >
-        <div className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-300 rounded-full" />
-        <MessageCircle className="w-7 h-7 relative z-10" />
-      </Button>
+        <Button
+          className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full p-4 shadow-2xl relative overflow-hidden group"
+          onClick={() => setChatOpen(true)}
+          aria-label="AI helper chat"
+          disabled={chatOpen}
+        >
+          <div className="absolute inset-0 bg-white/20 transform scale-0 group-hover:scale-100 transition-transform duration-300 rounded-full" />
+          <MessageCircle className="w-7 h-7 relative z-10" />
+        </Button>
       </motion.div>
 
       {/* Enhanced Pitch Deck Selection Modal */}

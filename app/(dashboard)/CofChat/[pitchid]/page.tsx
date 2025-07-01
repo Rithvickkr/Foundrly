@@ -788,74 +788,75 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50/80 dark:bg-gray-900/80 scroll-smooth chat-container"
             >
-              {messages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-4 text-gray-500 dark:text-gray-400">
+                {messages.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center p-2 sm:p-4 text-gray-500 dark:text-gray-400">
                   <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="max-w-md"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="max-w-xs sm:max-w-md w-full"
                   >
-                    <div className="bg-gradient-to-r from-blue-400 to-indigo-500 p-6 rounded-2xl mb-6 inline-block shadow-xl">
-                      <Rocket size={48} className="text-white" />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text">Talk with Your AI Co-founder</h3>
-                    <p className="mb-8 text-sm md:text-base text-gray-600 dark:text-gray-300">Get instant feedback, brainstorm ideas, and strategize your startup's growth with an AI partner built to help you succeed.</p>
-                    {showSuggestions && (
-                      <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.3 }}
+                  <div className="bg-gradient-to-r from-blue-400 to-indigo-500 p-4 sm:p-6 rounded-2xl mb-4 sm:mb-6 inline-block shadow-xl">
+                    <Rocket size={32} className="text-white sm:w-12 sm:h-12" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-gray-700 dark:text-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text px-2">Talk with Your AI Co-founder</h3>
+                  <p className="mb-4 sm:mb-8 text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300 px-2 leading-relaxed">Get instant feedback, brainstorm ideas, and strategize your startup's growth with an AI partner built to help you succeed.</p>
+                  {showSuggestions && (
+                    <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="w-full"
+                    >
+                    <div className="bg-white/80 dark:bg-gray-800/80 p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-md mt-4 glassmorphism">
+                      <div className="flex flex-wrap justify-center mb-3 sm:mb-4 gap-1 sm:gap-2">
+                      <button
+                        onClick={() => setActiveCategory('strategy')}
+                        className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm transition glassmorphism ripple ${
+                        activeCategory === 'strategy'
+                          ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'bg-gray-100/80 text-gray-800 dark:bg-gray-700/80 dark:text-gray-300'
+                        }`}
                       >
-                        <div className="bg-white/80 dark:bg-gray-800/80 p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-md mt-4 glassmorphism">
-                          <div className="flex flex-wrap justify-center mb-4 gap-2">
-                            <button
-                              onClick={() => setActiveCategory('strategy')}
-                              className={`px-3 py-1 rounded-full text-sm transition glassmorphism ripple ${
-                                activeCategory === 'strategy'
-                                  ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                  : 'bg-gray-100/80 text-gray-800 dark:bg-gray-700/80 dark:text-gray-300'
-                              }`}
-                            >
-                              Strategy
-                            </button>
-                            <button
-                              onClick={() => setActiveCategory('funding')}
-                              className={`px-3 py-1 rounded-full text-sm transition glassmorphism ripple ${
-                                activeCategory === 'funding'
-                                  ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                  : 'bg-gray-100/80 text-gray-800 dark:bg-gray-700/80 dark:text-gray-300'
-                              }`}
-                            >
-                              Funding
-                            </button>
-                            <button
-                              onClick={() => setActiveCategory('growth')}
-                              className={`px-3 py-1 rounded-full text-sm transition glassmorphism ripple ${
-                                activeCategory === 'growth'
-                                  ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                  : 'bg-gray-100/80 text-gray-800 dark:bg-gray-700/80 dark:text-gray-300'
-                              }`}
-                            >
-                              Growth
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {suggestedQuestions[activeCategory as keyof typeof suggestedQuestions].map((question, idx) => (
-                              <motion.div
-                                key={`${activeCategory}-${idx}`}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => selectSuggestion(question)}
-                                className="p-3 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg border border-blue-100/50 dark:border-blue-900/30 cursor-pointer hover:shadow-md transition-all duration-200 text-sm glassmorphism"
-                              >
-                                <p className="text-gray-800 dark:text-gray-200 font-medium">{question}</p>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
+                        Strategy
+                      </button>
+                      <button
+                        onClick={() => setActiveCategory('funding')}
+                        className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm transition glassmorphism ripple ${
+                        activeCategory === 'funding'
+                          ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'bg-gray-100/80 text-gray-800 dark:bg-gray-700/80 dark:text-gray-300'
+                        }`}
+                      >
+                        Funding
+                      </button>
+                      <button
+                        onClick={() => setActiveCategory('growth')}
+                        className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm transition glassmorphism ripple ${
+                        activeCategory === 'growth'
+                          ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'bg-gray-100/80 text-gray-800 dark:bg-gray-700/80 dark:text-gray-300'
+                        }`}
+                      >
+                        Growth
+                      </button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 sm:gap-3">
+                      {suggestedQuestions[activeCategory as keyof typeof suggestedQuestions].map((question, idx) => (
+                        <motion.div
+                        key={`${activeCategory}-${idx}`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => selectSuggestion(question)}
+                        className="p-2 sm:p-3 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg border border-blue-100/50 dark:border-blue-900/30 cursor-pointer hover:shadow-md transition-all duration-200 text-xs sm:text-sm glassmorphism"
+                        >
+                        <p className="text-gray-800 dark:text-gray-200 font-medium leading-relaxed">{question}</p>
+                        </motion.div>
+                      ))}
+                      </div>
+                    </div>
+                    </motion.div>
+                  )}
                   </motion.div>
                 </div>
               ) : (
