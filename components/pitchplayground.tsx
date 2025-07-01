@@ -690,7 +690,7 @@ export function PitchDeckPlayground() {
       const token = await getAuthToken();
       if (!token) throw new Error("User not authenticated");
 
-      const response = await fetch(`http://127.0.0.1:8000/generate-slides`, {
+      const response = await fetch(`https://pitchdeckbend.onrender.com/generate-slides`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1673,7 +1673,7 @@ export function PitchDeckPlayground() {
                           
                           console.log("Saving pitch deck:", requestBody);
                           
-                          const response = await fetch(`http://127.0.0.1:8000/save-slides`, {
+                          const response = await fetch(`https://pitchdeckbend.onrender.com/save-slides`, {
                             method: "POST",
                             headers: {
                               "Content-Type": "application/json",
