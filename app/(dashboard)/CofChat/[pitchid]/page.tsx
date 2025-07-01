@@ -114,7 +114,7 @@ export default function CofounderChat() {
   const pitchId = params.pitchid as string;
 
   // Use pitchId if pitchDeckId isn't provided externally
-  const effectivePitchDeckId =pitchId;
+  const effectivePitchDeckId = pitchId;
 
   // Effects
   useEffect(() => {
