@@ -81,7 +81,7 @@ interface CofounderChatProps {
   pitchDeckId: string;
 }
 
-export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
+export default function CofounderChat() {
   // State management
   const [userMessage, setUserMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -114,7 +114,7 @@ export default function CofounderChat({ pitchDeckId }: CofounderChatProps) {
   const pitchId = params.pitchid as string;
 
   // Use pitchId if pitchDeckId isn't provided externally
-  const effectivePitchDeckId = pitchDeckId || pitchId;
+  const effectivePitchDeckId =pitchId;
 
   // Effects
   useEffect(() => {
