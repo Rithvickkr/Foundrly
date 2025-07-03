@@ -27,6 +27,7 @@ import {
   Bot,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { title } from "process";
 
 // Accessibility: Detect reduced motion preference
 const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -56,7 +57,7 @@ const HOME = () => {
     "Validating Idea...",
     "Generating Pitch...",
     "Emailing Investor...",
-    "Creating Brand...",
+    "Creating Slides...",
     "Analyzing Market...",
   ];
 
@@ -132,6 +133,12 @@ const HOME = () => {
       gradient: "from-green-600 to-emerald-600",
     },
     {
+      icon: FileCode,
+      title: "Slide Generation Tool",
+      description: "Create stunning presentation slides with AI-powered design and content",
+      gradient: "from-indigo-600 to-blue-600",
+    },
+    {
       icon: Globe,
       title: "Investor Outreach Toolkit",
       description: "Crafted emails and video pitches that get responses from VCs",
@@ -142,7 +149,7 @@ const HOME = () => {
       title: "AI-Powered Co-Founder",
       description: "Your AI co-founder that works 24/7 to build your startup",
       gradient: "from-yellow-600 to-amber-600",
-    },
+    }
   ];
 
   const steps = [
@@ -152,18 +159,18 @@ const HOME = () => {
       description: "Tell us your startup concept",
     },
     {
-      icon: Search,
-      title: "AI Market Scan",
-      description: "We validate and research for you",
-    },
-    {
       icon: FileText,
       title: "Generate Deck",
       description: "Professional pitch deck created",
     },
     {
+      icon: Search,
+      title: "AI Market Scan",
+      description: "We validate and research for you",
+    },
+    {
       icon: Mic,
-      title: "Create Video Pitch",
+      title: "Create AI Pitch",
       description: "AI voiceover and avatar video",
     },
     {
@@ -883,15 +890,19 @@ const HOME = () => {
             }}
             viewport={{ once: true, margin: "-100px" }}
           >
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">
-              Co-Found with AI Today
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-400 mb-12 px-4">
-              Join the future of entrepreneurship with Foundrly.
-            </p>
+            {/* Section Header */}
+            <div className="mb-12">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">
+                Co-Found with AI Today
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-400 px-4">
+                Join the future of entrepreneurship with Foundrly.
+              </p>
+            </div>
 
+            {/* Email Signup Form */}
             <div className="flex flex-col items-center">
-              <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 w-full max-w-md sm:max-w-none">
+                <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 w-full max-w-md sm:max-w-none mx-auto">
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -900,116 +911,120 @@ const HOME = () => {
                   className="w-full sm:w-80 px-6 py-4 rounded-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 transition-all duration-300"
                   aria-label="Enter your email to join beta"
                 />
+                
                 <motion.button
                   onClick={handleEmailSubmit}
                   className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold rounded-full relative overflow-hidden"
                   whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0 0 20px rgba(34, 211, 238, 0.5)",
+                  scale: 1.05,
+                  boxShadow: "0 0 20px rgba(34, 211, 238, 0.5)",
                   }}
                   whileTap={{ scale: 0.95 }}
                   disabled={isSubmitted}
                   aria-label={isSubmitted ? "Joined" : "Join Beta"}
                 >
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-purple-600 opacity-0"
-                    whileHover={{ opacity: 0.3 }}
-                    transition={{ duration: 0.3 }}
+                  className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-purple-600 opacity-0"
+                  whileHover={{ opacity: 0.3 }}
+                  transition={{ duration: 0.3 }}
                   />
+                  
                   {isSubmitted ? (
-                    <motion.div
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: 1 }}
-                      transition={{
-                        duration: 0.4,
-                        ease: bounceEasing,
-                      }}
-                      className="flex items-center justify-center"
-                    >
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Joined!
-                    </motion.div>
+                  <motion.div
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                    duration: 0.4,
+                    ease: bounceEasing,
+                    }}
+                    className="flex items-center justify-center"
+                  >
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Joined!
+                  </motion.div>
                   ) : (
-                    "Join Beta"
+                  "Join Beta"
                   )}
                 </motion.button>
-              </div>
-            </div>
+                </div>
 
-            {isSubmitted && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  ease: bounceEasing,
-                }}
-                className="mt-8"
-              >
-                <Rocket className="w-16 h-16 mx-auto text-cyan-400 mb-4 animate-bounce" />
-                <p className="text-cyan-400 text-lg">
-                  🚀 You're in! Welcome to the future of founding!
-                </p>
-              </motion.div>
-            )}
+              {/* Success Message */}
+              {isSubmitted && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: bounceEasing,
+                  }}
+                  className="mt-8"
+                >
+                  <Rocket className="w-16 h-16 mx-auto text-cyan-400 mb-4 animate-bounce" />
+                  <p className="text-cyan-400 text-lg">
+                    🚀 You're in! Welcome to the future of founding!
+                  </p>
+                </motion.div>
+              )}
+            </div>
           </motion.div>
         </div>
-      </section>
-
+        </section>
       {/* Footer */}
       <footer className="relative py-20 px-4 sm:px-6 lg:px-8 z-10 border-t border-white/10">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-center">
-            <motion.div
-              className="flex items-center mb-8 lg:mb-0"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, ease: smoothEasing }}
-            >
-              <Brain className="w-10 h-10 text-cyan-400 mr-4" />
-              <span className="text-2xl font-bold">Foundrly</span>
-            </motion.div>
+        <motion.div
+          className="flex items-center mb-8 lg:mb-0"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: smoothEasing }}
+        >
+          <Brain className="w-10 h-10 text-cyan-400 mr-4" />
+          <span className="text-2xl font-bold">Foundrly</span>
+        </motion.div>
 
-            <div className="flex flex-wrap justify-center lg:justify-end gap-8 text-gray-400">
-              {[
-                { icon: FileText, label: "Docs" },
-                { icon: Twitter, label: "Twitter" },
-                { icon: Globe, label: "Blog" },
-                { icon: Shield, label: "Privacy" },
-              ].map((item, index) => (
-                <motion.a
-                  key={item.label}
-                  href="#"
-                  className="hover:text-white transition-colors flex items-center text-base"
-                  whileHover={{
-                    y: -2,
-                    color: "#22D3EE",
-                  }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.1,
-                    ease: smoothEasing,
-                  }}
-                  aria-label={item.label}
-                >
-                  <item.icon className="w-4 h-4 mr-2" />
-                  {item.label}
-                </motion.a>
-              ))}
-            </div>
+        <div className="flex flex-wrap justify-center lg:justify-end gap-8 text-gray-400">
+          {[
+            { icon: FileText, label: "Docs", href: "#" },
+            { icon: Twitter, label: "Twitter", href: "https://x.com/rithvickkr027" },
+            { icon: Globe, label: "Blog", href: "#" },
+            { icon: Shield, label: "Privacy", href: "#" },
+          ].map((item, index) => (
+            <motion.a
+          key={item.label}
+          href={item.href}
+          target={item.href.startsWith("http") ? "_blank" : undefined}
+          rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          className="hover:text-white transition-colors flex items-center text-base"
+          whileHover={{
+            y: -2,
+            color: "#22D3EE",
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.4,
+            delay: index * 0.1,
+            ease: smoothEasing,
+          }}
+          aria-label={item.label}
+            >
+          <item.icon className="w-4 h-4 mr-2" />
+          {item.label}
+            </motion.a>
+          ))}
+        </div>
           </div>
 
           <motion.div
-            className="mt-12 pt-8 border-t border-white/10 text-center text-gray-400 text-base"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+        className="mt-12 pt-8 border-t border-white/10 text-center text-gray-400 text-base"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <p>
-              © 2025 Foundrly. Empowering the next generation of founders.
-            </p>
+        <p>
+          © 2025 Foundrly. Empowering the next generation of founders.
+        </p>
           </motion.div>
         </div>
       </footer>
