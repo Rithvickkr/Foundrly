@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   motion,
   useScroll,
@@ -7,7 +7,13 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Tilt from "react-parallax-tilt";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Brain,
   Search,
@@ -25,12 +31,19 @@ import {
   FileCode,
   Shield,
   Bot,
+  DollarSign,
+  Users,
+  Target,
+  TrendingUp,
+  Clock,
+  Award,
+  Lightbulb,
+  MessageSquare,
+  PieChart,
+  Briefcase,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { title } from "process";
-
-// Accessibility: Detect reduced motion preference
-const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const HOME = () => {
   const [mounted, setMounted] = useState(false);
@@ -53,67 +66,16 @@ const HOME = () => {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.7]);
 
-  const phrases = [
+  // Memoized data to prevent re-renders
+  const phrases = useMemo(() => [
     "Validating Idea...",
     "Generating Pitch...",
     "Emailing Investor...",
     "Creating Slides...",
     "Analyzing Market...",
-  ];
+  ], []);
 
-  // Custom easing for smooth animations
-  const smoothEasing = [0.6, 0.05, 0.01, 0.99] as const;
-  const bounceEasing = [0.68, -0.55, 0.265, 1.55] as const;
-
-  // Handle mounting
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Typing animation with randomized delays
-  useEffect(() => {
-    if (!mounted) return;
-
-    const phrase = phrases[currentPhrase];
-    let index = 0;
-
-    const typeInterval = setInterval(() => {
-      if (index <= phrase.length) {
-        setTypedText(phrase.slice(0, index));
-        index++;
-      } else {
-        clearInterval(typeInterval);
-        setTimeout(() => {
-          setCurrentPhrase((prev) => (prev + 1) % phrases.length);
-        }, 2000);
-      }
-    }, 80 + Math.random() * 20); // Randomized typing speed
-
-    return () => clearInterval(typeInterval);
-  }, [currentPhrase, mounted]);
-
-  // Testimonials rotation
-  useEffect(() => {
-    if (!mounted) return;
-
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [mounted]);
-
-  // Mouse trail effect
-  useEffect(() => {
-    if (!mounted) return;
-
-    const handleMouseMove = (e: { clientX: any; clientY: any; }) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mounted]);
-
-  const features = [
+  const features = useMemo(() => [
     {
       icon: Search,
       title: "Idea Validation Engine",
@@ -150,9 +112,9 @@ const HOME = () => {
       description: "Your AI co-founder that works 24/7 to build your startup",
       gradient: "from-yellow-600 to-amber-600",
     }
-  ];
+  ], []);
 
-  const steps = [
+  const steps = useMemo(() => [
     {
       icon: FileCode,
       title: "Submit Your Idea",
@@ -178,9 +140,9 @@ const HOME = () => {
       title: "Launch & Scale",
       description: "Ready to pitch investors!",
     },
-  ];
+  ], []);
 
-  const testimonials = [
+  const testimonials = useMemo(() => [
     {
       name: "Sarah Chen",
       role: "Founder, TechFlow",
@@ -202,7 +164,106 @@ const HOME = () => {
       rating: 5,
       avatar: "EW",
     },
-  ];
+  ], []);
+
+  const faqData = useMemo(() => [
+    {
+      question: "How does Foundrly validate startup ideas?",
+      answer: "Our AI analyzes 50+ data points including market size, competition density, search trends, patent landscapes, and regulatory requirements. We cross-reference with 100,000+ successful startups to give you a comprehensive validation score within minutes.",
+      icon: Target,
+    },
+    {
+      question: "What makes Foundrly's pitch decks investor-ready?",
+      answer: "Our AI studies patterns from 10,000+ funded pitch decks. We automatically include key metrics VCs look for: TAM/SAM analysis, competitive positioning, financial projections, and risk mitigation strategies. Each deck follows proven frameworks that have raised $2B+ in funding.",
+      icon: PieChart,
+    },
+    {
+      question: "How does the AI co-founder actually help?",
+      answer: "Think of it as having a Harvard MBA co-founder available 24/7. It helps with market research, competitive analysis, business model optimization, investor outreach strategies, and even handles regulatory compliance checks. It's trained on data from 50,000+ successful startups.",
+      icon: Bot,
+    },
+    {
+      question: "Can I customize the generated content?",
+      answer: "Absolutely! While our AI creates the foundation, you have full control. Edit slides, adjust financial models, modify pitch scripts, and rebrand everything. Our editor supports real-time collaboration and version control for team workflows.",
+      icon: FileCode,
+    },
+    {
+      question: "What's included in the investor outreach?",
+      answer: "We provide personalized email templates, investor research profiles, follow-up sequences, and even AI-generated video pitches. Our database includes 15,000+ active investors with their investment preferences and contact information.",
+      icon: Users,
+    },
+    {
+      question: "How much does Foundrly cost?",
+      answer: "We offer flexible pricing: Basic ($29/month) for solo founders, Pro ($99/month) for teams with advanced features, and Enterprise ($299/month) for agencies. All plans include unlimited idea validation and pitch deck generation. 14-day free trial included.",
+      icon: DollarSign,
+    },
+    {
+      question: "What success rate do Foundrly users see?",
+      answer: "Our users see 3.2x higher response rates from investors, 67% faster time-to-funding, and 89% report improved pitch clarity. Over 1,200 startups have raised $420M+ using Foundrly-generated materials.",
+      icon: TrendingUp,
+    },
+    {
+      question: "Is my startup idea secure?",
+      answer: "Yes! We use enterprise-grade encryption, never store your data on third-party servers, and offer optional NDA protection. Your ideas remain 100% confidential. We're SOC 2 certified and GDPR compliant.",
+      icon: Shield,
+    },
+  ], []);
+
+  // Custom easing for smooth animations
+  const smoothEasing = useMemo(() => [0.6, 0.05, 0.01, 0.99] as const, []);
+  const bounceEasing = useMemo(() => [0.68, -0.55, 0.265, 1.55] as const, []);
+
+  // Handle mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Optimized typing animation
+  useEffect(() => {
+    if (!mounted) {
+      setTypedText(phrases[currentPhrase]);
+      return;
+    }
+
+    const phrase = phrases[currentPhrase];
+    let index = 0;
+
+    const typeInterval = setInterval(() => {
+      if (index <= phrase.length) {
+        setTypedText(phrase.slice(0, index));
+        index++;
+      } else {
+        clearInterval(typeInterval);
+        setTimeout(() => {
+          setCurrentPhrase((prev) => (prev + 1) % phrases.length);
+        }, 2000);
+      }
+    }, 80 + Math.random() * 20);
+
+    return () => clearInterval(typeInterval);
+  }, [currentPhrase, mounted, phrases]);
+
+  // Optimized testimonials rotation
+  useEffect(() => {
+    if (!mounted) return;
+
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [mounted, testimonials.length]);
+
+  // Mouse trail effect
+  useEffect(() => {
+    if (!mounted) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mounted]);
 
   const handleEmailSubmit = useCallback(() => {
     if (email && email.includes("@")) {
@@ -237,32 +298,7 @@ const HOME = () => {
             ease: "easeInOut",
           }}
         />
-        {/* Particle System */}
-        <div className="absolute inset-0 opacity-30">
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-cyan-400 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                willChange: "transform, opacity",
-              }}
-              animate={{
-                opacity: [0, 0.6, 0],
-                scale: [0, 1.5, 0],
-                x: Math.random() * 20 - 10,
-                y: Math.random() * 20 - 10,
-              }}
-              transition={{
-                duration: Math.random() * 3 + 2,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </div>
+        
         {/* Mouse Trail */}
         <motion.div
           className="absolute w-4 h-4 bg-cyan-400/20 rounded-full pointer-events-none"
@@ -878,6 +914,199 @@ const HOME = () => {
         </div>
       </section>
 
+      {/* FAQ Section with Accordion */}
+      <section className="relative py-24 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 z-10">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.8,
+          ease: smoothEasing,
+        }}
+        viewport={{ once: true, margin: "-100px" }}
+        className="text-center mb-16 sm:mb-20 lg:mb-24"
+          >
+        <motion.h2 
+          className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent"
+          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 0.7,
+            delay: 0.2,
+            ease: bounceEasing,
+          }}
+          viewport={{ once: true }}
+        >
+          Frequently Asked Questions
+        </motion.h2>
+        <motion.p 
+          className="text-lg sm:text-xl text-gray-400 px-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.4,
+            ease: smoothEasing,
+          }}
+          viewport={{ once: true }}
+        >
+          Everything you need to know about Foundrly and how it works.
+        </motion.p>
+          </motion.div>
+
+          <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.6,
+          ease: smoothEasing,
+        }}
+        viewport={{ once: true, margin: "-50px" }}
+          >
+        <Accordion type="single" collapsible className="space-y-4">
+          {faqData.map((faq, index) => (
+            <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 30, x: index % 2 === 0 ? -20 : 20 }}
+          whileInView={{ opacity: 1, y: 0, x: 0 }}
+          transition={{
+            duration: 0.6,
+            delay: index * 0.15,
+            ease: smoothEasing,
+          }}
+          viewport={{ once: true, margin: "-20px" }}
+          whileHover={{ 
+            y: -4,
+            scale: 1.01,
+            transition: { duration: 0.3, ease: "easeOut" }
+          }}
+            >
+          <AccordionItem
+            value={`item-${index}`}
+            className="border border-white/20 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg hover:border-cyan-400/50 transition-all duration-500 overflow-hidden mb-4 group"
+          >
+            <AccordionTrigger className="px-6 py-4 hover:no-underline group/trigger">
+              <motion.div 
+            className="flex items-center space-x-4 text-left w-full"
+            whileHover={{ x: 4 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+            <motion.div 
+              className="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-500/20 to-purple-500/20 flex items-center justify-center group-hover:from-cyan-500/30 group-hover:to-purple-500/30 transition-all duration-500"
+              whileHover={{ 
+                scale: 1.1,
+                rotate: 10,
+                background: "linear-gradient(135deg, rgba(34, 211, 238, 0.4), rgba(147, 51, 234, 0.4))"
+              }}
+              transition={{ duration: 0.4, ease: bounceEasing }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.2 }}
+                transition={{ duration: 0.3 }}
+              >
+                <faq.icon className="w-5 h-5 text-cyan-400 group-hover/trigger:text-cyan-300 transition-colors duration-300" />
+              </motion.div>
+            </motion.div>
+            <motion.span 
+              className="text-lg font-semibold text-white group-hover/trigger:text-cyan-300 transition-colors duration-300"
+              initial={{ opacity: 0.9 }}
+              whileHover={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {faq.question}
+            </motion.span>
+              </motion.div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6">
+              <motion.div 
+            className="ml-14 text-gray-300 leading-relaxed text-base"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.4,
+              delay: 0.1,
+              ease: smoothEasing 
+            }}
+              >
+            {faq.answer}
+              </motion.div>
+            </AccordionContent>
+          </AccordionItem>
+            </motion.div>
+          ))}
+        </Accordion>
+          </motion.div>
+
+          {/* Additional Trust Indicators */}
+          <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.8,
+          delay: 0.3,
+          ease: smoothEasing,
+        }}
+        viewport={{ once: true, margin: "-50px" }}
+        className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8"
+          >
+        {[
+          { icon: Award, label: "99.7% Uptime", sub: "Reliable Service" },
+          { icon: Clock, label: "24/7 Support", sub: "Always Available" },
+          { icon: Users, label: "10K+ Users", sub: "Growing Community" },
+          { icon: Shield, label: "Enterprise Security", sub: "Your Data Protected" },
+        ].map((item, index) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{
+          duration: 0.6,
+          delay: index * 0.15,
+          ease: bounceEasing,
+            }}
+            viewport={{ once: true }}
+            whileHover={{ 
+          scale: 1.05,
+          y: -8,
+          boxShadow: "0 10px 25px rgba(34, 211, 238, 0.15)",
+          transition: { 
+            duration: 0.3,
+            ease: "easeOut"
+          }
+            }}
+            className="text-center p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg border border-white/10 hover:border-cyan-400/30 transition-all duration-500 cursor-pointer group"
+          >
+            <motion.div
+          whileHover={{ 
+            scale: 1.2,
+            rotate: 10,
+            color: "#22D3EE"
+          }}
+          transition={{ duration: 0.4, ease: bounceEasing }}
+            >
+          <item.icon className="w-8 h-8 mx-auto mb-3 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300" />
+            </motion.div>
+            <motion.div 
+          className="font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300"
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+            >
+          {item.label}
+            </motion.div>
+            <motion.div 
+          className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-300"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+            >
+          {item.sub}
+            </motion.div>
+          </motion.div>
+        ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative py-24 sm:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -902,7 +1131,7 @@ const HOME = () => {
 
             {/* Email Signup Form */}
             <div className="flex flex-col items-center">
-                <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 w-full max-w-md sm:max-w-none mx-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 w-full max-w-md sm:max-w-none mx-auto">
                 <input
                   type="email"
                   placeholder="Enter your email"
@@ -916,37 +1145,37 @@ const HOME = () => {
                   onClick={handleEmailSubmit}
                   className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold rounded-full relative overflow-hidden"
                   whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 0 20px rgba(34, 211, 238, 0.5)",
+                    scale: 1.05,
+                    boxShadow: "0 0 20px rgba(34, 211, 238, 0.5)",
                   }}
                   whileTap={{ scale: 0.95 }}
                   disabled={isSubmitted}
                   aria-label={isSubmitted ? "Joined" : "Join Beta"}
                 >
                   <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-purple-600 opacity-0"
-                  whileHover={{ opacity: 0.3 }}
-                  transition={{ duration: 0.3 }}
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-purple-600 opacity-0"
+                    whileHover={{ opacity: 0.3 }}
+                    transition={{ duration: 0.3 }}
                   />
                   
                   {isSubmitted ? (
-                  <motion.div
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{
-                    duration: 0.4,
-                    ease: bounceEasing,
-                    }}
-                    className="flex items-center justify-center"
-                  >
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Joined!
-                  </motion.div>
+                    <motion.div
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        duration: 0.4,
+                        ease: bounceEasing,
+                      }}
+                      className="flex items-center justify-center"
+                    >
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Joined!
+                    </motion.div>
                   ) : (
-                  "Join Beta"
+                    "Join Beta"
                   )}
                 </motion.button>
-                </div>
+              </div>
 
               {/* Success Message */}
               {isSubmitted && (
@@ -968,78 +1197,67 @@ const HOME = () => {
             </div>
           </motion.div>
         </div>
-        </section>
+      </section>
+
       {/* Footer */}
       <footer className="relative py-20 px-4 sm:px-6 lg:px-8 z-10 border-t border-white/10">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-center">
-        <motion.div
-          className="flex items-center mb-8 lg:mb-0"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: smoothEasing }}
-        >
-          <Brain className="w-10 h-10 text-cyan-400 mr-4" />
-          <span className="text-2xl font-bold">Foundrly</span>
-        </motion.div>
-
-        <div className="flex flex-wrap justify-center lg:justify-end gap-8 text-gray-400">
-          {[
-            { icon: FileText, label: "Docs", href: "#" },
-            { icon: Twitter, label: "Twitter", href: "https://x.com/rithvickkr027" },
-            { icon: Globe, label: "Blog", href: "#" },
-            { icon: Shield, label: "Privacy", href: "#" },
-          ].map((item, index) => (
-            <motion.a
-          key={item.label}
-          href={item.href}
-          target={item.href.startsWith("http") ? "_blank" : undefined}
-          rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-          className="hover:text-white transition-colors flex items-center text-base"
-          whileHover={{
-            y: -2,
-            color: "#22D3EE",
-          }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.4,
-            delay: index * 0.1,
-            ease: smoothEasing,
-          }}
-          aria-label={item.label}
+            <motion.div
+              className="flex items-center mb-8 lg:mb-0"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: smoothEasing }}
             >
-          <item.icon className="w-4 h-4 mr-2" />
-          {item.label}
-            </motion.a>
-          ))}
-        </div>
+              <Brain className="w-10 h-10 text-cyan-400 mr-4" />
+              <span className="text-2xl font-bold">Foundrly</span>
+            </motion.div>
+
+            <div className="flex flex-wrap justify-center lg:justify-end gap-8 text-gray-400">
+              {[
+                { icon: FileText, label: "Docs", href: "#" },
+                { icon: Twitter, label: "Twitter", href: "https://x.com/rithvickkr027" },
+                { icon: Globe, label: "Blog", href: "#" },
+                { icon: Shield, label: "Privacy", href: "#" },
+              ].map((item, index) => (
+                <motion.a
+                  key={item.label}
+                  href={item.href}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="hover:text-white transition-colors flex items-center text-base"
+                  whileHover={{
+                    y: -2,
+                    color: "#22D3EE",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: index * 0.1,
+                    ease: smoothEasing,
+                  }}
+                  aria-label={item.label}
+                >
+                  <item.icon className="w-4 h-4 mr-2" />
+                  {item.label}
+                </motion.a>
+              ))}
+            </div>
           </div>
 
           <motion.div
-        className="mt-12 pt-8 border-t border-white/10 text-center text-gray-400 text-base"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-12 pt-8 border-t border-white/10 text-center text-gray-400 text-base"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
           >
-        <p>
-          © 2025 Foundrly. Empowering the next generation of founders.
-        </p>
+            <p>
+              © 2025 Foundrly. Empowering the next generation of founders.
+            </p>
           </motion.div>
         </div>
       </footer>
-
-      {/* Reduced Motion Styles */}
-      <style jsx global>{`
-        @media (prefers-reduced-motion: reduce) {
-          .animate-pulse,
-          .animate-bounce,
-          [class*="motion-"] {
-            animation: none !important;
-            transition: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };

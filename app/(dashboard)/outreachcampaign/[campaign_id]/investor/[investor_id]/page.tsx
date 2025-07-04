@@ -235,7 +235,7 @@ export default function InvestorDashboard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: emailData.id,
+          outreach_id: emailData.id,
           subject: emailData.email_subject,
           body: emailData.email_body,
           to_email: investor?.email,
