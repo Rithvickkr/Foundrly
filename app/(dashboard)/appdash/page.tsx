@@ -43,12 +43,12 @@ const Tools = [
   },
   {
     id: 2,
-    name: "Idea Generator",
-    description: "Generate innovative business concepts and solutions",
+    name: "Idea Validation",
+    description: "Get feedback on your startup ideas with AI",
     icon: Lightbulb,
     color: "bg-yellow-500",
     hoverColor: "hover:bg-yellow-600",
-    category: "Creative",
+    category: "Research",
     isNew: false,
   },
   {
@@ -79,7 +79,7 @@ const Tools = [
     color: "bg-purple-500",
     hoverColor: "hover:bg-purple-600",
     category: "Analytics",
-    isNew: true,
+    isNew: false,
   },
   {
     id: 6,
