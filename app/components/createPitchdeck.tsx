@@ -117,19 +117,43 @@ const industries = [
 
 // Startup stages
 const startupStages = [
-  { value: "idea", label: "Idea", icon: Sparkles },
-  { value: "mvp", label: "MVP", icon: Rocket },
-  { value: "scaling", label: "Scaling", icon: BarChart3 },
-  { value: "revenue", label: "Revenue Stage", icon: PieChart },
-  { value: "growth", label: "Growth Stage", icon: Target },
-  { value: "expansion", label: "Expansion Stage", icon: FileText },
-  { value: "mature", label: "Mature Stage", icon: FileUp },
-  { value: "exit", label: "Exit Stage", icon: X },
+  { value: "idea", label: "Just an Idea", icon: Sparkles },
+  {
+    value: "validating_problem",
+    label: "Validating the Problem",
+    icon: FileText,
+  },
+  { value: "mvp", label: "Built MVP / Prototype", icon: Rocket },
+  { value: "early_traction", label: "Got Early Traction", icon: Target },
+  {
+    value: "growing_users",
+    label: "Growing Users (Pre-Revenue)",
+    icon: BarChart3,
+  },
+  {
+    value: "making_revenue",
+    label: "Started Making Revenue",
+    icon: PieChart,
+  },
+  { value: "scaling", label: "Scaling the Startup", icon: FileUp },
+  {
+    value: "established",
+    label: "Established & Growing",
+    icon: Check,
+  },
+  {
+    value: "exploring_ideas",
+    label: "Exploring Ideas Only",
+    icon: Wand2,
+  },
+  { value: "planning_exit", label: "Planning Exit", icon: X },
+  {
+    value: "seed_funded",
+    label: "Pre-Seed / Seed Funded",
+    icon: Upload,
+  },
+  { value: "not_sure", label: "Not Sure Yet", icon: Sun },
   { value: "other", label: "Other", icon: Info },
-  { value: "not_applicable", label: "Not Applicable", icon: Check },
-  { value: "unknown", label: "Unknown", icon: Sun },
-  { value: "not_sure", label: "Not Sure", icon: Moon },
-  { value: "seed", label: "Seed Stage", icon: FileText },
 ];
 
 // Popular markets
@@ -690,170 +714,189 @@ export function CreatePitchDeck() {
           <Card className="mb-12 bg-white dark:bg-slate-900/50 border-gray-200 dark:border-slate-700/50 shadow-md dark:shadow-slate-950/20 rounded-xl hover:shadow-lg dark:hover:shadow-slate-950/30 transition-all duration-200 backdrop-blur-sm">
             <CardHeader className="px-8 py-6">
               <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-slate-50 flex items-center">
-                <Target className="w-6 h-6 mr-2 text-indigo-500 dark:text-indigo-400" />
-                Business Profile
+          <Target className="w-6 h-6 mr-2 text-indigo-500 dark:text-indigo-400" />
+          Business Profile
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-slate-300">
-                Provide key details about your venture.
+          Provide key details about your venture.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-8 py-6 space-y-8">
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label
-                    htmlFor="industry"
-                    className="text-sm font-semibold text-gray-900 dark:text-slate-50"
-                  >
-                    Industry <span className="text-red-500 dark:text-red-400">*</span>
-                  </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600">
-                        <p>Select the industry your startup operates in.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <Select
-                  value={formData.industry}
-                  onValueChange={(value) =>
-                    handleSelectChange("industry", value)
-                  }
+          <div className="flex items-center gap-2">
+            <Label
+              htmlFor="industry"
+              className="text-sm font-semibold text-gray-900 dark:text-slate-50"
+            >
+              Industry <span className="text-red-500 dark:text-red-400">*</span>
+            </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+            <Info className="h-4 w-4 text-gray-500 dark:text-slate-400" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600">
+            <p>Select the industry your startup operates in.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Select
+            value={formData.industry}
+            onValueChange={(value) =>
+              handleSelectChange("industry", value)
+            }
+          >
+            <SelectTrigger
+              id="industry"
+              className="bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200"
+            >
+              <SelectValue placeholder="Select industry" />
+            </SelectTrigger>
+            <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100">
+              {industries.map((industry) => (
+                <SelectItem
+            key={industry}
+            value={industry}
+            className="text-sm hover:bg-gray-100 dark:hover:bg-slate-700/50 focus:bg-gray-100 dark:focus:bg-slate-700/50"
                 >
-                  <SelectTrigger
-                    id="industry"
-                    className="bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200"
-                  >
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100">
-                    {industries.map((industry) => (
-                      <SelectItem
-                        key={industry}
-                        value={industry}
-                        className="text-sm hover:bg-gray-100 dark:hover:bg-slate-700/50 focus:bg-gray-100 dark:focus:bg-slate-700/50"
-                      >
-                        {industry}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label className="text-sm font-semibold text-gray-900 dark:text-slate-50">
-                    Startup Stage <span className="text-red-500 dark:text-red-400">*</span>
-                  </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600">
-                        <p>Choose the current stage of your startup.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <RadioGroup
-                  value={formData.startupStage}
-                  onValueChange={(value) =>
-                    handleSelectChange("startupStage", value)
-                  }
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-                >
-                  {startupStages.map((stage) => (
-                    <div key={stage.value}>
-                      <RadioGroupItem
-                        value={stage.value}
-                        id={stage.value}
-                        className="sr-only"
-                      />
-                      <Label
-                        htmlFor={stage.value}
-                        className={cn(
-                          "flex flex-col items-center p-4 rounded-lg border cursor-pointer text-sm transition-all duration-200",
-                          formData.startupStage === stage.value
-                            ? "border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-900 dark:text-indigo-100"
-                            : "border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50 text-gray-900 dark:text-slate-100"
-                        )}
-                      >
-                        <stage.icon className={cn(
-                          "h-8 w-8 mb-2",
-                          formData.startupStage === stage.value
-                            ? "text-indigo-500 dark:text-indigo-400"
-                            : "text-indigo-500 dark:text-indigo-400"
-                        )} />
-                        {stage.label}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+            {industry}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
               </div>
               <div className="space-y-2 relative">
-                <div className="flex items-center gap-2">
-                  <Label
-                    htmlFor="targetMarket"
-                    className="text-sm font-semibold text-gray-900 dark:text-slate-50"
-                  >
-                    Target Market <span className="text-red-500 dark:text-red-400">*</span>
-                  </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-500 dark:text-slate-400" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600">
-                        <p>Specify your primary audience or market segment.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+          <div className="flex items-center gap-2">
+            <Label
+              htmlFor="targetMarket"
+              className="text-sm font-semibold text-gray-900 dark:text-slate-50"
+            >
+              Target Market <span className="text-red-500 dark:text-red-400">*</span>
+            </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+            <Info className="h-4 w-4 text-gray-500 dark:text-slate-400" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600">
+            <p>Specify your primary audience or market segment.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Input
+            id="targetMarket"
+            name="targetMarket"
+            placeholder="e.g., B2B, Millennials"
+            value={formData.targetMarket}
+            onChange={handleInputChange}
+            className="bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200 placeholder:text-gray-500 dark:placeholder:text-slate-400"
+          />
+          <AnimatePresence>
+            {showMarketSuggestions && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="absolute z-30 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg dark:shadow-slate-950/20 max-h-60 overflow-auto "
+              >
+                <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100 dark:border-slate-700">
+            <span className="text-sm text-gray-500 dark:text-slate-400">
+              Suggestions
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowMarketSuggestions(false)}
+              aria-label="Close suggestions"
+              className="text-gray-900 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/50"
+            >
+              <X className="h-4 w-4" />
+            </Button>
                 </div>
-                <Input
-                  id="targetMarket"
-                  name="targetMarket"
-                  placeholder="e.g., B2B, Millennials"
-                  value={formData.targetMarket}
-                  onChange={handleInputChange}
-                  className="bg-gray-50 dark:bg-slate-800/50 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200 placeholder:text-gray-500 dark:placeholder:text-slate-400"
+                {filteredMarkets.map((market) => (
+            <div
+              key={market}
+              className="px-4 py-2 text-sm text-gray-900 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/50 cursor-pointer rounded transition-colors duration-150"
+              onClick={() => handleSelectMarket(market)}
+            >
+              {market}
+            </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+              </div>
+              <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-semibold text-gray-900 dark:text-slate-50">
+              Startup Stage <span className="text-red-500 dark:text-red-400">*</span>
+            </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+            <Info className="h-4 w-4 text-gray-500 dark:text-slate-400" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 border-gray-200 dark:border-slate-600">
+            <p>Choose the current stage of your startup.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <RadioGroup
+            value={formData.startupStage}
+            onValueChange={(value) =>
+              handleSelectChange("startupStage", value)
+            }
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            {startupStages.map((stage) => (
+              <motion.div
+                key={stage.value}
+                variants={itemVariants}
+                className="group"
+              >
+                <RadioGroupItem
+            value={stage.value}
+            id={stage.value}
+            className="sr-only peer"
                 />
-                <AnimatePresence>
-                  {showMarketSuggestions && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg dark:shadow-slate-950/20 max-h-60 overflow-auto"
-                    >
-                      <div className="flex justify-between items-center px-4 py-2 border-b border-gray-100 dark:border-slate-700">
-                        <span className="text-sm text-gray-500 dark:text-slate-400">
-                          Suggestions
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setShowMarketSuggestions(false)}
-                          aria-label="Close suggestions"
-                          className="text-gray-900 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/50"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      {filteredMarkets.map((market) => (
-                        <div
-                          key={market}
-                          className="px-4 py-2 text-sm text-gray-900 dark:text-slate-100 hover:bg-gray-100 dark:hover:bg-slate-700/50 cursor-pointer rounded transition-colors duration-150"
-                          onClick={() => handleSelectMarket(market)}
-                        >
-                          {market}
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <Label
+            htmlFor={stage.value}
+            className={cn(
+              "flex flex-col items-center justify-center p-6 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-md hover:scale-105 group-hover:border-indigo-300 dark:group-hover:border-indigo-500",
+              "min-h-[120px] text-center space-y-3",
+              formData.startupStage === stage.value
+                ? "border-indigo-500 dark:border-indigo-400 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/50 dark:to-indigo-900/30 text-indigo-900 dark:text-indigo-100 shadow-lg"
+                : "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800/30 hover:bg-gray-50 dark:hover:bg-slate-800/50 text-gray-700 dark:text-slate-200"
+            )}
+                >
+            <div className={cn(
+              "p-2 rounded-lg transition-colors duration-300",
+              formData.startupStage === stage.value
+                ? "bg-indigo-100 dark:bg-indigo-900/50"
+                : "bg-gray-100 dark:bg-slate-700/50 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-950/30"
+            )}>
+              <stage.icon className={cn(
+                "h-6 w-6 transition-colors duration-300",
+                formData.startupStage === stage.value
+                  ? "text-indigo-600 dark:text-indigo-300"
+                  : "text-gray-600 dark:text-slate-300 group-hover:text-indigo-500 dark:group-hover:text-indigo-400"
+              )} />
+            </div>
+            <span className={cn(
+              "font-medium text-sm leading-tight transition-colors duration-300",
+              formData.startupStage === stage.value
+                ? "text-indigo-800 dark:text-indigo-200"
+                : "text-gray-700 dark:text-slate-200"
+            )}>
+              {stage.label}
+            </span>
+                </Label>
+              </motion.div>
+            ))}
+          </RadioGroup>
               </div>
             </CardContent>
           </Card>
@@ -865,18 +908,18 @@ export function CreatePitchDeck() {
           className="flex flex-col sm:flex-row gap-4 items-center justify-center"
         >
             <AnimatedSubscribeButton
-            subscribeStatus={false}
-            onClick={saveDraft}
-            className="bg-gray-100 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg px-8 py-3 text-base shadow-md dark:shadow-slate-950/20 transition-all duration-200 focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 hover:shadow-lg dark:hover:shadow-slate-950/30"
+              subscribeStatus={false}
+              onClick={saveDraft}
+              className="bg-gray-100 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg px-8 py-3 text-base shadow-md dark:shadow-slate-950/20 transition-all duration-200 focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 hover:shadow-lg dark:hover:shadow-slate-950/30 z-0 "
             >
-            <span className="flex items-center transition-colors duration-200">
-              <Save className="h-5 w-5 mr-2" />
-              Save Draft
-            </span>
-            <span className="flex items-center transition-colors duration-200">
-              <Check className="h-5 w-5 mr-2" />
-              Saved!
-            </span>
+              <span className="flex items-center transition-colors duration-200">
+                <Save className="h-5 w-5 mr-2" />
+                Save Draft
+              </span>
+              <span className="flex items-center transition-colors duration-200">
+                <Check className="h-5 w-5 mr-2" />
+                Saved!
+              </span>
             </AnimatedSubscribeButton>
           <Buttonload
             onClick={generatePitchDeck}
