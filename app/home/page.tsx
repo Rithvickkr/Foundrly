@@ -697,7 +697,7 @@ const HOME = () => {
       {/* Hero Section */}
       <motion.section
         ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10 pt-16 sm:pt-20 mt-10"
+        className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10 pt-16 sm:pt-20 md:mt-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, ease: smoothEasing }}
