@@ -453,7 +453,7 @@ const HOME = () => {
             { label: "Demo", ref: liveDemoRef, icon: FileText },
             { label: "FAQ", ref: faqRef, icon: MessageSquare },
           ].map((item, index) => (
-            <motion.button
+          <motion.button
           key={item.label}
           onClick={() => scrollToSection(item.ref)}
           className="relative px-4 py-2 text-gray-300 hover:text-white transition-all duration-300 text-sm font-medium rounded-lg group overflow-hidden"
@@ -462,7 +462,7 @@ const HOME = () => {
           transition={{ delay: index * 0.1, ...softSpring }}
           whileHover={{ y: -2, scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-            >
+          >
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 opacity-0 rounded-lg"
             whileHover={{ opacity: 1 }}
@@ -594,8 +594,6 @@ const HOME = () => {
               key={item.label}
               onClick={() => {
                 scrollToSection(item.ref);
-                // setIsMenuOpen(true);
-
               }}
               className="relative w-full text-left py-3 px-4 text-gray-300 hover:text-white transition-all duration-300 rounded-lg group overflow-hidden"
               variants={staggerChild}
