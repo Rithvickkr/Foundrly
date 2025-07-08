@@ -377,8 +377,11 @@ const HOME = () => {
   // Smooth scrolling to sections
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     if (ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth" });
       setIsMenuOpen(false);
+      setTimeout(() => {
+        ref.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      
     }
   };
 
@@ -413,7 +416,7 @@ const HOME = () => {
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
-        {/* Enhanced Logo */}
+        
         <motion.div
           className="flex items-center cursor-pointer group"
           whileHover={{ scale: 1.05 }}
@@ -589,8 +592,10 @@ const HOME = () => {
           ].map((item) => (
             <motion.button
               key={item.label}
-              onClick={() => {scrollToSection(item.ref)
-                console.log(`Navigating to ${item.ref}`);
+              onClick={() => {
+                scrollToSection(item.ref);
+                // setIsMenuOpen(true);
+
               }}
               className="relative w-full text-left py-3 px-4 text-gray-300 hover:text-white transition-all duration-300 rounded-lg group overflow-hidden"
               variants={staggerChild}
