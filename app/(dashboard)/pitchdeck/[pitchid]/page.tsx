@@ -322,8 +322,20 @@ const ContentSectionComponent = memo(
     color: "indigo" | "purple" | "green";
     sectionRef?: React.RefObject<HTMLDivElement | null>;
   }) => {
-    const [visibleSections, setVisibleSections] = useState(0);
+    const [displayedText, setDisplayedText] = useState("");
+    const [isComplete, setIsComplete] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const fullText = sections
+      .map(section => 
+        `${section.header ? `**${section.header}**\n\n` : ''}${section.children
+          .map(child => 
+            child.type === "paragraph" 
+              ? child.content 
+              : (child.content as string[]).map(item => `• ${item}`).join('\n')
+          )
+          .join('\n\n')}`
+      )
+      .join('\n\n');
 
     const getColorClasses = () => {
       switch (color) {
@@ -356,9 +368,33 @@ const ContentSectionComponent = memo(
 
     const colors = getColorClasses();
 
-    const handleSectionComplete = useCallback(() => {
-      setVisibleSections((prev) => prev + 1);
-    }, []);
+    useEffect(() => {
+      if (!fullText) return;
+      
+      let currentIndex = 0;
+      const words = fullText.split(' ');
+      
+      const interval = setInterval(() => {
+        if (currentIndex < words.length) {
+          setDisplayedText(prev => 
+            currentIndex === 0 ? words[0] : prev + ' ' + words[currentIndex]
+          );
+          currentIndex++;
+        } else {
+          setIsComplete(true);
+          clearInterval(interval);
+        }
+      }, 50);
+
+      return () => clearInterval(interval);
+    }, [fullText]);
+
+    const formatText = (text: string) => {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-gray-100">$1</strong>')
+        .replace(/^• (.+)$/gm, '<span class="flex items-start gap-2 my-2"><span class="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span><span>$1</span></span>')
+        .replace(/\n/g, '<br />');
+    };
 
     return (
       <motion.section
@@ -379,22 +415,22 @@ const ContentSectionComponent = memo(
         <Card className={`bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 ${colors.border} shadow-2xl ${colors.glow} hover:shadow-3xl transition-all duration-500 rounded-2xl overflow-hidden transform hover:-translate-y-2 relative group`}>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
           
-          <CardHeader className={`border-b border-gray-200/50 dark:border-gray-700 px-8 py-10 bg-gradient-to-r ${colors.gradient} to-transparent relative overflow-hidden`}>
+          <CardHeader className={`border-b border-gray-200/50 dark:border-gray-700 px-8 py-6 bg-gradient-to-r ${colors.gradient} to-transparent relative overflow-hidden`}>
             <motion.div
               animate={isHovered ? { scale: 1.05, rotate: 5 } : { scale: 1, rotate: 0 }}
               transition={{ duration: 0.3 }}
               className="absolute top-4 right-4 opacity-10"
             >
-              {React.cloneElement(icon, { className: "w-32 h-32" })}
+              {React.cloneElement(icon, { className: "w-24 h-24" })}
             </motion.div>
             
-            <CardTitle className="text-3xl sm:text-4xl font-black text-gray-800 dark:text-gray-100 flex items-center relative z-10">
+            <CardTitle className="text-2xl sm:text-3xl font-black text-gray-800 dark:text-gray-100 flex items-center relative z-10">
               <motion.div
                 animate={isHovered ? { rotate: 360, scale: 1.1 } : { rotate: 0, scale: 1 }}
                 transition={{ duration: 0.5 }}
               >
                 {React.cloneElement(icon, {
-                  className: "w-10 h-10 mr-4 text-current",
+                  className: "w-8 h-8 mr-4 text-current",
                 })}
               </motion.div>
               <motion.span
@@ -407,107 +443,45 @@ const ContentSectionComponent = memo(
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="px-8 py-10 space-y-8">
-            {sections.slice(0, visibleSections + 1).map((section, index) => (
-              <motion.div
-                key={`section-${index}-${section.header}`}
-                initial={{ opacity: 0, x: -40, rotateY: -15 }}
-                animate={{ opacity: 1, x: 0, rotateY: 0 }}
-                transition={{ 
-                  delay: 0.2 + index * 0.1, 
-                  duration: 0.6,
-                  type: "spring",
-                  stiffness: 120
-                }}
-                className={`relative bg-white/70 dark:bg-gray-900/50 rounded-2xl p-8 border-l-4 ${colors.border} hover:bg-white/90 dark:hover:bg-gray-900/70 transition-all duration-300 group/section backdrop-blur-sm shadow-lg hover:shadow-xl`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100/20 dark:via-gray-800/20 to-transparent -translate-x-full group-hover/section:translate-x-full transition-transform duration-700" />
-                
-                <motion.h3
-                  className={`text-2xl sm:text-3xl font-bold ${colors.header} mb-6 tracking-tight relative z-10`}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <TypewriterText
-                    text={section.header || "Overview"}
-                    delay={30}
-                    onComplete={
-                      index === visibleSections && section.children.length === 0
-                        ? handleSectionComplete
-                        : undefined
-                    }
-                  />
-                </motion.h3>
-
-                {section.children.map((child, childIndex) => (
-                  <motion.div 
-                    key={`${child.type}-${childIndex}`} 
-                    className="mb-6 relative z-10"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + childIndex * 0.1 }}
-                  >
-                    {child.type === "paragraph" && (
-                      <div className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light">
-                        {(child.content as string)
-                          .split("\n")
-                          .map((line, i, arr) => (
-                            <span key={i}>
-                              <TypewriterText
-                                text={line}
-                                delay={30}
-                                onComplete={
-                                  index === visibleSections &&
-                                  childIndex === section.children.length - 1 &&
-                                  i === arr.length - 1
-                                    ? handleSectionComplete
-                                    : undefined
-                                }
-                              />
-                              {i < arr.length - 1 && <br />}
-                            </span>
-                          ))}
-                      </div>
-                    )}
-                    {child.type === "bulletList" && (
-                      <ul className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light list-disc pl-6 space-y-3">
-                        {(child.content as string[]).map((item, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 * i }}
-                            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200"
-                          >
-                            <TypewriterText
-                              text={item}
-                              delay={30}
-                              onComplete={
-                                index === visibleSections &&
-                                childIndex === section.children.length - 1 &&
-                                i === (child.content as string[]).length - 1
-                                  ? handleSectionComplete
-                                  : undefined
-                              }
-                            />
-                          </motion.li>
-                        ))}
-                      </ul>
-                    )}
-                  </motion.div>
-                ))}
-
-                <motion.div
-                  className={`absolute top-0 right-0 w-20 h-20 ${colors.accent} rounded-bl-full opacity-50`}
-                  animate={isHovered ? { scale: 1.2, rotate: 45 } : { scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.3 }}
+          <CardContent className="px-8 py-8">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative bg-white/70 dark:bg-gray-900/50 rounded-xl p-6 border border-gray-200/50 dark:border-gray-700 backdrop-blur-sm shadow-lg min-h-[200px]"
+            >
+              <div className="relative z-10">
+                <div 
+                  className="text-base text-gray-700 dark:text-gray-300 leading-relaxed font-light"
+                  dangerouslySetInnerHTML={{ 
+                    __html: formatText(displayedText) + 
+                      (!isComplete ? '<span class="inline-block w-0.5 h-5 ml-1 bg-current animate-pulse"></span>' : '')
+                  }}
                 />
-              </motion.div>
-            ))}
+                
+                {isComplete && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5, duration: 0.3 }}
+                    className="mt-6 flex justify-end"
+                  >
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${colors.accent} ${colors.header} border ${colors.border}`}>
+                      ✓ Generated
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <motion.div
+                className={`absolute bottom-0 right-0 w-16 h-16 ${colors.accent} rounded-tl-full opacity-30`}
+                animate={isHovered ? { scale: 1.2, rotate: 45 } : { scale: 1, rotate: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.div>
           </CardContent>
-          </Card>
-          </motion.section>
-        
-        
+        </Card>
+      </motion.section>
     );
   }
 );
