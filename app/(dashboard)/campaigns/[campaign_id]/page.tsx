@@ -79,11 +79,8 @@ export default function CampaignDetailPage() {
         source: '',
         campaign_id: campaignId as UUID,
     });
-    const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
-        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setIsDark(isDarkMode);
         fetchCampaign();
         fetchInvestors();
     }, [campaignId]);
@@ -342,17 +339,15 @@ export default function CampaignDetailPage() {
 
     if (loading) {
         return (
-            <div className={`min-h-screen transition-colors duration-500 ${
-                isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-            } flex items-center justify-center px-4 relative overflow-hidden`}>
+            <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500 flex items-center justify-center px-4 relative overflow-hidden">
                 <div className="absolute inset-0 overflow-hidden">
                     <motion.div
-                        className="absolute inset-0 opacity-20"
+                        className="absolute inset-0 opacity-30"
                         animate={{
                             background: [
-                                'radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.2) 0%, transparent 50%)',
-                                'radial-gradient(circle at 80% 50%, rgba(147, 51, 234, 0.2) 0%, transparent 50%)',
-                                'radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%)',
+                                'radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)',
+                                'radial-gradient(circle at 80% 50%, rgba(147, 51, 234, 0.15) 0%, transparent 50%)',
+                                'radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)',
                             ],
                         }}
                         transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
@@ -365,12 +360,10 @@ export default function CampaignDetailPage() {
                         animate={{ rotate: 360 }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                     >
-                        <div className={`w-12 h-12 border-4 border-t-blue-500 rounded-full ${
-                            isDark ? 'border-blue-400' : 'border-blue-600'
-                        }`} />
+                        <div className="w-12 h-12 border-4 border-t-blue-500 border-blue-200 dark:border-gray-700 rounded-full" />
                     </motion.div>
                     <motion.h2
-                        className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}
+                        className="text-xl font-semibold text-slate-800 dark:text-white"
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                     >
@@ -382,12 +375,10 @@ export default function CampaignDetailPage() {
     }
 
     return (
-        <div className={`min-h-screen transition-colors duration-500 ${
-            isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-        } relative overflow-hidden`}>
+        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500 relative overflow-hidden">
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <motion.div
-                    className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/15 to-purple-600/15 rounded-full blur-3xl"
+                    className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/40 to-purple-300/40 dark:from-blue-400/15 dark:to-purple-600/15 rounded-full blur-3xl"
                     animate={{
                         scale: [1, 1.2, 1],
                         x: [0, 40, 0],
@@ -396,7 +387,7 @@ export default function CampaignDetailPage() {
                     transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
                 />
                 <motion.div
-                    className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/15 to-pink-600/15 rounded-full blur-3xl"
+                    className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-200/40 to-pink-300/40 dark:from-purple-400/15 dark:to-pink-600/15 rounded-full blur-3xl"
                     animate={{
                         scale: [1, 1.15, 1],
                         x: [0, -40, 0],
@@ -409,7 +400,7 @@ export default function CampaignDetailPage() {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
                 <motion.div
                     style={{ y: headerY, opacity: headerOpacity }}
-                    className="sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg rounded-xl border border-gray-200/30 dark:border-gray-700/30 p-6 shadow-md"
+                    className="sticky top-0 z-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg rounded-xl border border-slate-200/50 dark:border-gray-700/30 p-6 shadow-lg"
                 >
                     <motion.div
                         variants={itemVariants}
@@ -423,12 +414,12 @@ export default function CampaignDetailPage() {
                                     <Button
                                         variant="ghost"
                                         onClick={() => router.back()}
-                                        className="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                                        className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-blue-900/50"
                                     >
-                                        <ArrowLeft className={`w-5 h-5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} />
+                                        <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-gray-300" />
                                     </Button>
                                 </motion.div>
-                                <h1 className={`text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent truncate`}>
+                                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent truncate">
                                     {campaign?.campaign_name || 'Campaign Name'}
                                 </h1>
                             </div>
@@ -436,7 +427,7 @@ export default function CampaignDetailPage() {
                                 <Button
                                     variant="destructive"
                                     onClick={deleteCampaign}
-                                    className="rounded-lg px-4 py-2 bg-red-600 hover:bg-red-700"
+                                    className="rounded-lg px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-md"
                                 >
                                     <Trash2 className="w-4 h-4 mr-2" />
                                     Delete Campaign
@@ -445,7 +436,7 @@ export default function CampaignDetailPage() {
                         </div>
 
                         <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
@@ -460,7 +451,7 @@ export default function CampaignDetailPage() {
                             ].map((item, index) => (
                                 <motion.div
                                     key={item.label}
-                                    className={`p-4 rounded-lg ${isDark ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm`}
+                                    className="p-4 rounded-lg bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-gray-700/30 shadow-sm hover:shadow-md transition-shadow"
                                     whileHover={{ scale: 1.03 }}
                                     transition={{ delay: index * 0.1 }}
                                 >
@@ -468,28 +459,28 @@ export default function CampaignDetailPage() {
                                         {item.emoji ? (
                                             <span className="text-xl">{item.emoji}</span>
                                         ) : (
-                                            <item.icon className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                                            <item.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                         )}
-                                        <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                        <span className="text-sm font-medium text-slate-600 dark:text-gray-300">
                                             {item.label}
                                         </span>
                                     </div>
-                                    <p className={`text-sm truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <p className="text-sm truncate text-slate-800 dark:text-white">
                                         {item.value || 'N/A'}
                                     </p>
                                 </motion.div>
                             ))}
                             <motion.div
-                                className={`p-4 rounded-lg ${isDark ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm col-span-1 sm:col-span-2 lg:col-span-4`}
-                                whileHover={{ scale: 1.03 }}
+                                className="p-4 rounded-lg bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-gray-700/30 shadow-sm hover:shadow-md transition-shadow col-span-1 sm:col-span-2 lg:col-span-3"
+                                whileHover={{ scale: 1.02 }}
                             >
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Star className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`} />
-                                    <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    <Star className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                                    <span className="text-sm font-medium text-slate-600 dark:text-gray-300">
                                         Description
                                     </span>
                                 </div>
-                                <p className={`text-sm line-clamp-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                <p className="text-sm line-clamp-2 text-slate-700 dark:text-gray-300">
                                     {campaign?.description || 'No description available'}
                                 </p>
                             </motion.div>
@@ -498,12 +489,12 @@ export default function CampaignDetailPage() {
                 </motion.div>
 
                 <motion.div variants={itemVariants} initial="hidden" animate="visible">
-                    <Card className={`${isDark ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg border-0 shadow-lg rounded-xl`}>
+                    <Card className="bg-white/95 dark:bg-gray-800/90 backdrop-blur-lg border border-slate-200/50 dark:border-gray-700/30 shadow-lg rounded-xl">
                         <CardContent className="p-6">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 {[
                                     { icon: Users, value: investors.length, label: 'Total Investors', color: 'blue' },
-                                    { icon: TrendingUp, value: filteredInvestors.length, label: 'Filtered Results', color: 'green' },
+                                    { icon: TrendingUp, value: filteredInvestors.length, label: 'Filtered Results', color: 'emerald' },
                                     { icon: Star, value: new Set(investors.map(i => i.investment_stage)).size, label: 'Investment Stages', color: 'purple' },
                                 ].map((stat, index) => (
                                     <motion.div
@@ -513,15 +504,19 @@ export default function CampaignDetailPage() {
                                         transition={{ duration: 0.3, delay: index * 0.1 }}
                                     >
                                         <motion.div
-                                            className={`w-12 h-12 bg-gradient-to-r from-${stat.color}-500 to-${stat.color}-400 rounded-lg flex items-center justify-center mx-auto`}
+                                            className={`w-12 h-12 bg-gradient-to-r ${
+                                                stat.color === 'blue' ? 'from-blue-500 to-blue-400' :
+                                                stat.color === 'emerald' ? 'from-emerald-500 to-emerald-400' :
+                                                'from-purple-500 to-purple-400'
+                                            } rounded-xl flex items-center justify-center mx-auto shadow-lg`}
                                         >
                                             <stat.icon className="w-6 h-6 text-white" />
                                         </motion.div>
                                         <div>
-                                            <h3 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            <h3 className="text-2xl font-semibold text-slate-800 dark:text-white">
                                                 {stat.value}
                                             </h3>
-                                            <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                            <p className="text-xs text-slate-600 dark:text-gray-400">
                                                 {stat.label}
                                             </p>
                                         </div>
@@ -535,7 +530,7 @@ export default function CampaignDetailPage() {
                             >
                                 <Button
                                     onClick={() => setShowAddForm(!showAddForm)}
-                                    className="rounded-lg px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                                    className="rounded-xl px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
                                     Add New Investor
@@ -554,21 +549,21 @@ export default function CampaignDetailPage() {
                     >
                         <div className="w-full sm:w-1/2 max-w-md">
                             <motion.div className="relative">
-                                <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-gray-400" />
                                 <Input
                                     placeholder="Search investors..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className={`pl-10 py-2 rounded-lg ${isDark ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white border-gray-200'}`}
+                                    className="pl-10 py-2 rounded-xl bg-white/95 dark:bg-gray-700/50 border-slate-200 dark:border-gray-600 text-slate-800 dark:text-white shadow-sm focus:shadow-md transition-shadow"
                                 />
                             </motion.div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Filter className={`w-4 h-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                            <Filter className="w-4 h-4 text-slate-500 dark:text-gray-400" />
                             <select
                                 value={selectedFilter}
                                 onChange={(e) => setSelectedFilter(e.target.value)}
-                                className={`px-3 py-2 rounded-lg ${isDark ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white border-gray-200'}`}
+                                className="px-3 py-2 rounded-xl bg-white/95 dark:bg-gray-700/50 border-slate-200 dark:border-gray-600 text-slate-800 dark:text-white shadow-sm focus:shadow-md transition-shadow"
                             >
                                 <option value="all">All Stages</option>
                                 <option value="pre-seed">Pre-Seed</option>
@@ -589,9 +584,9 @@ export default function CampaignDetailPage() {
                             exit={{ opacity: 0, y: 20 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <Card className={`${isDark ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg border-0 shadow-lg rounded-xl`}>
+                            <Card className="bg-white/95 dark:bg-gray-800/90 backdrop-blur-lg border border-slate-200/50 dark:border-gray-700/30 shadow-xl rounded-xl">
                                 <CardHeader>
-                                    <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                    <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                                         Add New Investor
                                     </CardTitle>
                                 </CardHeader>
@@ -607,7 +602,7 @@ export default function CampaignDetailPage() {
                                                 { id: 'source', label: 'Source', type: 'text', required: false, icon: Target },
                                             ].map((field) => (
                                                 <div key={field.id} className="space-y-2">
-                                                    <Label htmlFor={field.id} className={`text-sm font-medium flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                    <Label htmlFor={field.id} className="text-sm font-medium flex items-center gap-2 text-slate-700 dark:text-gray-300">
                                                         <field.icon className="w-4 h-4" />
                                                         {field.label} {field.required && <span className="text-red-500">*</span>}
                                                     </Label>
@@ -616,14 +611,14 @@ export default function CampaignDetailPage() {
                                                         type={field.type}
                                                         value={formData[field.id as keyof InvestorForm] as string}
                                                         onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
-                                                        className={`rounded-lg ${isDark ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white border-gray-200'}`}
+                                                        className="rounded-xl bg-white dark:bg-gray-700/50 border-slate-200 dark:border-gray-600 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/20 transition-all"
                                                         required={field.required}
                                                     />
                                                 </div>
                                             ))}
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="industry_focus" className={`text-sm font-medium flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                            <Label htmlFor="industry_focus" className="text-sm font-medium flex items-center gap-2 text-slate-700 dark:text-gray-300">
                                                 <Target className="w-4 h-4" />
                                                 Industry Focus
                                             </Label>
@@ -631,12 +626,12 @@ export default function CampaignDetailPage() {
                                                 id="industry_focus"
                                                 value={formData.industry_focus}
                                                 onChange={(e) => setFormData({ ...formData, industry_focus: e.target.value })}
-                                                className={`rounded-lg ${isDark ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white border-gray-200'}`}
+                                                className="rounded-xl bg-white dark:bg-gray-700/50 border-slate-200 dark:border-gray-600 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/20 transition-all"
                                                 placeholder="e.g., Tech, Healthcare, Fintech (comma-separated)"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="portfolio_companies" className={`text-sm font-medium flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                            <Label htmlFor="portfolio_companies" className="text-sm font-medium flex items-center gap-2 text-slate-700 dark:text-gray-300">
                                                 <Briefcase className="w-4 h-4" />
                                                 Portfolio Companies
                                             </Label>
@@ -644,14 +639,14 @@ export default function CampaignDetailPage() {
                                                 id="portfolio_companies"
                                                 value={formData.portfolio_companies}
                                                 onChange={(e) => setFormData({ ...formData, portfolio_companies: e.target.value })}
-                                                className={`min-h-[100px] rounded-lg ${isDark ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white border-gray-200'}`}
+                                                className="min-h-[100px] rounded-xl bg-white dark:bg-gray-700/50 border-slate-200 dark:border-gray-600 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/20 transition-all"
                                                 placeholder="Enter portfolio companies (comma-separated)..."
                                             />
                                         </div>
                                         <div className="flex flex-col sm:flex-row gap-3">
                                             <Button
                                                 type="submit"
-                                                className="rounded-lg px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                                                className="rounded-xl px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg"
                                             >
                                                 <Plus className="w-4 h-4 mr-2" />
                                                 Add Investor
@@ -660,7 +655,7 @@ export default function CampaignDetailPage() {
                                                 type="button"
                                                 variant="outline"
                                                 onClick={() => setShowAddForm(false)}
-                                                className={`rounded-lg px-6 py-2 ${isDark ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'}`}
+                                                className="rounded-xl px-6 py-2 border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 shadow-sm hover:shadow-md transition-all"
                                             >
                                                 Cancel
                                             </Button>
@@ -680,19 +675,19 @@ export default function CampaignDetailPage() {
                             exit={{ opacity: 0, y: 20 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <Card className={`${isDark ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg border-0 shadow-lg rounded-xl`}>
+                            <Card className="bg-white/95 dark:bg-gray-800/90 backdrop-blur-lg border border-slate-200/50 dark:border-gray-700/30 shadow-xl rounded-xl">
                                 <CardContent className="text-center py-12">
                                     <motion.div
-                                        className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4"
+                                        className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg"
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                     >
                                         <Users className="w-8 h-8 text-white" />
                                     </motion.div>
-                                    <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <h3 className="text-xl font-semibold text-slate-800 dark:text-white">
                                         {investors.length === 0 ? 'No Investors Yet' : 'No Matching Investors'}
                                     </h3>
-                                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-2`}>
+                                    <p className="text-sm text-slate-600 dark:text-gray-400 mt-2">
                                         {investors.length === 0 
                                             ? 'Add your first investor to start building your network.'
                                             : 'Adjust your search or filters to find investors.'
@@ -717,19 +712,17 @@ export default function CampaignDetailPage() {
                                         animate={expandedCard === investor.id ? 'expanded' : 'collapsed'}
                                     >
                                         <Card
-                                            className={`group relative rounded-xl overflow-hidden border-0 shadow-md transition-all duration-300 hover:shadow-xl ${
-                                                isDark ? 'bg-gray-800/90' : 'bg-white/90'
-                                            } backdrop-blur-lg cursor-pointer`}
+                                            className="group relative rounded-xl overflow-hidden border border-slate-200/50 dark:border-gray-700/30 bg-white/95 dark:bg-gray-800/90 shadow-md transition-all duration-300 hover:shadow-xl backdrop-blur-lg cursor-pointer"
                                             onClick={() => handleInvestorClick(investor.id)}
                                         >
                                             <motion.div
-                                                className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                                className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 dark:from-blue-500/10 dark:to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                                 layout
                                             />
                                             <CardContent className="p-6 relative z-10">
                                                 <div className="flex justify-between items-center mb-4">
                                                     <motion.h3
-                                                        className={`text-lg font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}
+                                                        className="text-lg font-semibold truncate text-slate-800 dark:text-white"
                                                         initial={{ opacity: 0, x: -10 }}
                                                         animate={{ opacity: 1, x: 0 }}
                                                         transition={{ delay: index * 0.1 }}
@@ -747,9 +740,9 @@ export default function CampaignDetailPage() {
                                                                 e.stopPropagation();
                                                                 removeInvestor(investor.id);
                                                             }}
-                                                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full"
+                                                            className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors"
                                                         >
-                                                            <Trash2 className={`w-4 h-4 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
+                                                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                                                         </Button>
                                                     </motion.div>
                                                 </div>
@@ -760,8 +753,8 @@ export default function CampaignDetailPage() {
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: index * 0.1 + 0.1 }}
                                                     >
-                                                        <Mail className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                                                        <span className={`text-sm truncate ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                        <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                                        <span className="text-sm truncate text-slate-600 dark:text-gray-300">
                                                             {investor.email}
                                                         </span>
                                                     </motion.div>
@@ -772,8 +765,8 @@ export default function CampaignDetailPage() {
                                                             animate={{ opacity: 1, y: 0 }}
                                                             transition={{ delay: index * 0.1 + 0.2 }}
                                                         >
-                                                            <Building className={`w-4 h-4 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
-                                                            <span className={`text-sm truncate ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                            <Building className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                                            <span className="text-sm truncate text-slate-600 dark:text-gray-300">
                                                                 {investor.firm}
                                                             </span>
                                                         </motion.div>
@@ -785,8 +778,8 @@ export default function CampaignDetailPage() {
                                                             animate={{ opacity: 1, y: 0 }}
                                                             transition={{ delay: index * 0.1 + 0.3 }}
                                                         >
-                                                            <TrendingUp className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-                                                            <span className={`text-sm truncate ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                                            <span className="text-sm truncate text-slate-600 dark:text-gray-300">
                                                                 {investor.investment_stage}
                                                             </span>
                                                         </motion.div>
@@ -805,7 +798,7 @@ export default function CampaignDetailPage() {
                                                                 e.stopPropagation();
                                                                 toggleCardExpansion(investor.id);
                                                             }}
-                                                            className={`w-full rounded-lg py-2 text-sm ${isDark ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'}`}
+                                                            className="w-full rounded-xl py-2 text-sm border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 transition-all"
                                                         >
                                                             {expandedCard === investor.id ? 'Hide Details' : 'View Details'}
                                                             <Eye className="w-4 h-4 ml-2" />
@@ -828,12 +821,12 @@ export default function CampaignDetailPage() {
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     transition={{ delay: 0.1 }}
                                                                 >
-                                                                    <Globe className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+                                                                    <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                                                     <a
                                                                         href={investor.linkedin_url}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className={`text-sm hover:underline ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+                                                                        className="text-sm hover:underline text-slate-600 dark:text-gray-300"
                                                                         onClick={(e) => e.stopPropagation()}
                                                                     >
                                                                         LinkedIn Profile
@@ -848,12 +841,12 @@ export default function CampaignDetailPage() {
                                                                     transition={{ delay: 0.2 }}
                                                                 >
                                                                     <div className="flex items-center gap-2">
-                                                                        <Target className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                                                                        <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                                        <Target className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                                                        <span className="text-sm font-medium text-slate-700 dark:text-gray-300">
                                                                             Industry Focus
                                                                         </span>
                                                                     </div>
-                                                                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                                                    <p className="text-sm text-slate-600 dark:text-gray-400">
                                                                         {displayArrayOrString(investor.industry_focus)}
                                                                     </p>
                                                                 </motion.div>
@@ -865,8 +858,8 @@ export default function CampaignDetailPage() {
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     transition={{ delay: 0.3 }}
                                                                 >
-                                                                    <Users className={`w-4 h-4 ${isDark ? 'text-teal-400' : 'text-teal-600'}`} />
-                                                                    <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                                    <Users className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                                                                    <span className="text-sm text-slate-600 dark:text-gray-300">
                                                                         Source: {investor.source}
                                                                     </span>
                                                                 </motion.div>
@@ -879,12 +872,12 @@ export default function CampaignDetailPage() {
                                                                     transition={{ delay: 0.4 }}
                                                                 >
                                                                     <div className="flex items-center gap-2">
-                                                                        <Briefcase className={`w-4 h-4 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} />
-                                                                        <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                                        <Briefcase className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                                                        <span className="text-sm font-medium text-slate-700 dark:text-gray-300">
                                                                             Portfolio Companies
                                                                         </span>
                                                                     </div>
-                                                                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                                                    <p className="text-sm text-slate-600 dark:text-gray-400">
                                                                         {displayArrayOrString(investor.portfolio_companies)}
                                                                     </p>
                                                                 </motion.div>
@@ -909,18 +902,18 @@ export default function CampaignDetailPage() {
                                         variant="outline"
                                         onClick={handlePrevPage}
                                         disabled={currentPage === 1}
-                                        className={`rounded-lg p-2 ${isDark ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'}`}
+                                        className="rounded-xl p-2 border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 transition-all shadow-sm hover:shadow-md"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                     </Button>
-                                    <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    <span className="text-sm text-slate-700 dark:text-gray-300">
                                         Page {currentPage} of {totalPages}
                                     </span>
                                     <Button
                                         variant="outline"
                                         onClick={handleNextPage}
                                         disabled={currentPage === totalPages}
-                                        className={`rounded-lg p-2 ${isDark ? 'border-gray-600 text-gray-300' : 'border-gray-300 text-gray-700'}`}
+                                        className="rounded-xl p-2 border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 transition-all shadow-sm hover:shadow-md"
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </Button>
