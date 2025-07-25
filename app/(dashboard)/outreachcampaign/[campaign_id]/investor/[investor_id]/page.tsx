@@ -58,7 +58,7 @@ interface EmailData {
   email_subject: string;
   email_body: string;
   investor_name: string;
-  id: string;
+  outreach_id: string;
   created_at?: string;
   status?: string;
   investor_id?: string;
@@ -78,7 +78,6 @@ export default function InvestorDashboard() {
   const params = useParams();
   const investor_id = params.investor_id as string;
   const campaign_id = params.campaign_id as string;
-
   const [investor, setInvestor] = useState<Investor | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [emailData, setEmailData] = useState<EmailData | null>(null);
@@ -211,6 +210,7 @@ export default function InvestorDashboard() {
 
       const data = await response.json();
       setEmailData(data);
+      console.log("Generated Email Data:", data);
       setRecentEmails((prev) => [data, ...prev.slice(0, 4)]);
       toast.success("🎉 Cold email generated successfully!");
       fetchOutreachStats();
@@ -235,7 +235,7 @@ export default function InvestorDashboard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          outreach_id: emailData.id,
+          outreach_id: emailData.outreach_id,
           subject: emailData.email_subject,
           body: emailData.email_body,
           to_email: investor?.email,
@@ -250,7 +250,7 @@ export default function InvestorDashboard() {
       toast.success("📧 Email sent successfully!");
       setRecentEmails((prev) =>
         prev.map((email) =>
-          email.id === emailData.id
+          email.outreach_id === emailData.outreach_id
             ? { ...email, status: "sent" }
             : email
         )
@@ -271,7 +271,7 @@ export default function InvestorDashboard() {
     try {
       const token = await getAuthToken();
       const response = await fetch(
-        `https://pitchdeckbend.onrender.com/outreach-tracking/${emailData.id}`,
+        `https://pitchdeckbend.onrender.com/outreach-tracking/${emailData.outreach_id}`,
         {
           method: "PUT",
           headers: {
@@ -291,7 +291,7 @@ export default function InvestorDashboard() {
 
       setRecentEmails((prev) =>
         prev.map((email) =>
-          email.id === emailData.id
+          email.outreach_id === emailData.outreach_id
             ? {
                 ...email,
                 email_subject: emailData.email_subject,
@@ -330,7 +330,7 @@ export default function InvestorDashboard() {
       }
 
       setRecentEmails((prev) =>
-        prev.filter((email) => email.id !== id)
+        prev.filter((email) => email.outreach_id !== id)
       );
 
       await fetchOutreachStats();
@@ -379,16 +379,16 @@ export default function InvestorDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div className="text-center animate-pulse">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 p-4">
+        <div className="text-center animate-pulse max-w-sm mx-auto">
           <div className="relative">
-            <RefreshCw className="h-12 w-12 animate-spin mx-auto mb-4 text-indigo-500 dark:text-indigo-400" />
-            <div className="absolute inset-0 h-12 w-12 mx-auto rounded-full bg-indigo-500/20 dark:bg-indigo-400/20 animate-ping"></div>
+            <RefreshCw className="h-8 w-8 md:h-12 md:w-12 animate-spin mx-auto mb-4 text-indigo-500 dark:text-indigo-400" />
+            <div className="absolute inset-0 h-8 w-8 md:h-12 md:w-12 mx-auto rounded-full bg-indigo-500/20 dark:bg-indigo-400/20 animate-ping"></div>
           </div>
-          <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">
+          <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">
             Loading Dashboard
           </h3>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
             Fetching investor data...
           </p>
         </div>
@@ -398,13 +398,13 @@ export default function InvestorDashboard() {
 
   if (error || !investor || !campaign) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-rose-50 dark:bg-rose-950 transition-colors duration-300">
-        <div className="text-center animate-bounce">
-          <AlertCircle className="h-16 w-16 text-rose-500 dark:text-rose-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2 text-rose-800 dark:text-rose-200">
+      <div className="flex items-center justify-center min-h-screen bg-rose-50 dark:bg-rose-950 transition-colors duration-300 p-4">
+        <div className="text-center animate-bounce max-w-md mx-auto">
+          <AlertCircle className="h-12 w-12 md:h-16 md:w-16 text-rose-500 dark:text-rose-400 mx-auto mb-4" />
+          <h2 className="text-xl md:text-2xl font-bold mb-2 text-rose-800 dark:text-rose-200">
             {error || "Investor not found"}
           </h2>
-          <p className="text-rose-600 dark:text-rose-300 mb-6">
+          <p className="text-sm md:text-base text-rose-600 dark:text-rose-300 mb-6">
             Unable to load investor or campaign data
           </p>
           <Button
@@ -422,24 +422,25 @@ export default function InvestorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 max-w-7xl">
+      <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8 lg:py-10 xl:px-10 2xl:px-12 max-w-[1920px]">
+        {/* Header Section */}
         <div
-          className={`mb-6 sm:mb-8 transform transition-all duration-1000 ${
+          className={`mb-4 sm:mb-6 md:mb-8 transform transition-all duration-1000 ${
             isVisible ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
           }`}
         >
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-800 dark:to-violet-800 rounded-2xl blur-3xl opacity-20 animate-pulse"></div>
-            <Card className="relative border-0 shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
-              <CardContent className="p-4 sm:p-6 lg:p-8">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent mb-2">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-800 dark:to-violet-800 rounded-xl md:rounded-2xl blur-2xl md:blur-3xl opacity-20 animate-pulse"></div>
+            <Card className="relative border-0 shadow-xl md:shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
+              <CardContent className="p-3 sm:p-4 md:p-6 lg:p-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent mb-1 sm:mb-2 leading-tight">
                       Investor Outreach Hub
                     </h1>
                     <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500 dark:text-indigo-400" />
-                      <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300">
+                      <Target className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-indigo-500 dark:text-indigo-400 flex-shrink-0" />
+                      <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-600 dark:text-gray-300 truncate">
                         Campaign:{" "}
                         <span className="font-semibold">
                           {campaign?.campaign_name}
@@ -447,9 +448,9 @@ export default function InvestorDashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-full">
-                    <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse"></div>
-                    <span className="text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                  <div className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex-shrink-0">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
                       Active Campaign
                     </span>
                   </div>
@@ -459,8 +460,9 @@ export default function InvestorDashboard() {
           </div>
         </div>
 
+        {/* Stats Section */}
         <div
-          className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 transform transition-all duration-1000 delay-200 ${
+          className={`grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-4 sm:mb-6 md:mb-8 transform transition-all duration-1000 delay-200 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           }`}
         >
@@ -503,42 +505,42 @@ export default function InvestorDashboard() {
                   key={stat.label}
                   className={`group hover:scale-105 transition-all duration-300 delay-${
                     index * 100
-                  } border-0 shadow-lg hover:shadow-xl bg-gradient-to-br ${getStatColor(
+                  } border-0 shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl bg-gradient-to-br ${getStatColor(
                     stat.type
                   )} text-white overflow-hidden relative ${
-                    index >= 3 ? "col-span-2 sm:col-span-1" : ""
+                    index >= 3 ? "xs:col-span-2 sm:col-span-1" : ""
                   }`}
                 >
                   <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-sm"></div>
-                  <CardContent className="p-3 sm:p-4 lg:p-6 relative z-10">
+                  <CardContent className="p-2 sm:p-3 md:p-4 lg:p-6 relative z-10">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white/80 text-xs sm:text-sm font-medium mb-1">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-white/80 text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 truncate">
                           {stat.label}
                         </p>
-                        <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-white">
+                        <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-white truncate">
                           {stat.value}
                         </p>
                       </div>
-                      <stat.icon className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white/80 group-hover:scale-110 transition-transform duration-300" />
+                      <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 xl:h-8 xl:w-8 text-white/80 group-hover:scale-110 transition-transform duration-300 flex-shrink-0" />
                     </div>
-                    <div className="absolute -bottom-2 -right-2 opacity-20">
-                      <stat.icon className="h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16" />
+                    <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 opacity-20">
+                      <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16" />
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </>
           ) : (
-            <Card className="col-span-2 sm:col-span-3 lg:col-span-5 border-dashed border-2 border-gray-300 dark:border-gray-600">
-              <CardContent className="p-6 sm:p-8 lg:p-12">
+            <Card className="col-span-1 xs:col-span-2 sm:col-span-3 lg:col-span-5 border-dashed border-2 border-gray-300 dark:border-gray-600">
+              <CardContent className="p-4 sm:p-6 md:p-8 lg:p-12">
                 <div className="flex items-center justify-center text-center">
-                  <div className="animate-bounce">
-                    <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg">
+                  <div className="animate-bounce max-w-xs">
+                    <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 text-gray-400 dark:text-gray-500 mx-auto mb-3 sm:mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
                       No outreach statistics available yet
                     </p>
-                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+                    <p className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2">
                       Generate your first email to see stats
                     </p>
                   </div>
@@ -548,27 +550,29 @@ export default function InvestorDashboard() {
           )}
         </div>
 
+        {/* Main Content Section */}
         <div
-          className={`grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 transform transition-all duration-1000 delay-400 ${
+          className={`grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6 md:gap-8 transform transition-all duration-1000 delay-400 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           }`}
         >
-          <Card className="md:col-span-2 border-0 shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-gray-800 dark:text-gray-100">
-                <User className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500 dark:text-indigo-400" />
-                Investor Profile
+          {/* Investor Profile Card */}
+          <Card className="xl:col-span-2 border-0 shadow-lg md:shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm hover:shadow-xl md:hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl text-gray-800 dark:text-gray-100">
+                <User className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-indigo-500 dark:text-indigo-400 flex-shrink-0" />
+                <span className="truncate">Investor Profile</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6">
-              <div className="text-center pb-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-indigo-500 to-violet-600 dark:from-indigo-600 dark:to-violet-700 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                  <User className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            <CardContent className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="text-center pb-3 sm:pb-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-indigo-500 to-violet-600 dark:from-indigo-600 dark:to-violet-700 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4 shadow-lg">
+                  <User className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-white" />
                 </div>
-                <h3 className="font-bold text-lg sm:text-xl text-gray-800 dark:text-gray-100">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl text-gray-800 dark:text-gray-100 truncate px-2">
                   {investor.name || "Unknown Investor"}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm truncate px-2">
                   {investor.email || "No email available"}
                 </p>
               </div>
@@ -576,13 +580,13 @@ export default function InvestorDashboard() {
               <Separator className="bg-gray-200 dark:bg-gray-700" />
 
               {investor.firm && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <Building className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <Building className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       Firm
                     </p>
-                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">
+                    <p className="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-100 truncate">
                       {investor.firm}
                     </p>
                   </div>
@@ -592,34 +596,33 @@ export default function InvestorDashboard() {
               {investor.linkedin_url && (
                 <Button
                   variant="outline"
-                  className="relative inline-flex w-full items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="relative inline-flex w-full items-center justify-center px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   onClick={() => window.open(investor.linkedin_url, "_blank")}
                   size="sm"
                 >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  <span className="hidden sm:inline">View LinkedIn Profile</span>
-                  <span className="sm:hidden">LinkedIn</span>
+                  <ExternalLink className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm truncate">View LinkedIn Profile</span>
                 </Button>
               )}
 
               <div>
-                <h4 className="font-semibold mb-2 sm:mb-3 text-gray-700 dark:text-gray-200 text-sm sm:text-base">
+                <h4 className="font-semibold mb-2 sm:mb-3 text-gray-700 dark:text-gray-200 text-xs sm:text-sm md:text-base">
                   Industry Focus
                 </h4>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <div className="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2">
                   {investor.industry_focus &&
                   investor.industry_focus.length > 0 ? (
                     investor.industry_focus.map((area, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors duration-200 text-xs"
+                        className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors duration-200 text-xs px-2 py-0.5"
                       >
                         {area}
                       </Badge>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 italic">
                       No industry focus specified
                     </p>
                   )}
@@ -628,12 +631,12 @@ export default function InvestorDashboard() {
 
               {investor.investment_stage && (
                 <div>
-                  <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-200 text-sm sm:text-base">
+                  <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-200 text-xs sm:text-sm md:text-base">
                     Investment Stage
                   </h4>
                   <Badge
                     variant="outline"
-                    className="bg-violet-50 dark:bg-violet-900/50 border-violet-200 dark:border-violet-700 text-violet-700 dark:text-violet-300 text-xs"
+                    className="bg-violet-50 dark:bg-violet-900/50 border-violet-200 dark:border-violet-700 text-violet-700 dark:text-violet-300 text-xs px-2 py-0.5"
                   >
                     {investor.investment_stage}
                   </Badge>
@@ -643,15 +646,15 @@ export default function InvestorDashboard() {
               {investor.portfolio_companies &&
               investor.portfolio_companies.length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-2 sm:mb-3 text-gray-700 dark:text-gray-200 text-sm sm:text-base">
+                  <h4 className="font-semibold mb-2 sm:mb-3 text-gray-700 dark:text-gray-200 text-xs sm:text-sm md:text-base">
                     Portfolio Companies
                   </h4>
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-24 sm:max-h-32 overflow-y-auto">
+                  <div className="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 max-h-20 sm:max-h-24 md:max-h-32 overflow-y-auto">
                     {investor.portfolio_companies.map((company, index) => (
                       <Badge
                         key={index}
                         variant="outline"
-                        className="text-xs bg-emerald-50 dark:bg-emerald-900/50 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300"
+                        className="text-xs bg-emerald-50 dark:bg-emerald-900/50 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 px-2 py-0.5"
                       >
                         {company}
                       </Badge>
@@ -663,39 +666,38 @@ export default function InvestorDashboard() {
               <Button
                 onClick={generateColdEmail}
                 disabled={isGenerating}
-                className="relative inline-flex w-full items-center justify-center px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-indigo-500 to-violet-600 dark:from-indigo-600 dark:to-violet-700 rounded-md hover:from-indigo-600 hover:to-violet-700 dark:hover:from-indigo-700 dark:hover:to-violet-800 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="relative inline-flex w-full items-center justify-center px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 text-xs sm:text-sm md:text-base font-medium text-white bg-gradient-to-r from-indigo-500 to-violet-600 dark:from-indigo-600 dark:to-violet-700 rounded-md hover:from-indigo-600 hover:to-violet-700 dark:hover:from-indigo-700 dark:hover:to-violet-800 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 size="lg"
               >
                 {isGenerating ? (
                   <>
-                    <RefreshCw className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                    <span className="hidden sm:inline">Generating Magic...</span>
-                    <span className="sm:hidden">Generating...</span>
+                    <RefreshCw className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 animate-spin flex-shrink-0" />
+                    <span className="text-xs sm:text-sm md:text-base truncate">Generating Magic...</span>
                   </>
                 ) : (
                   <>
-                    <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden sm:inline">Generate Cold Email</span>
-                    <span className="sm:hidden">Generate Email</span>
-                    <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <Zap className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm md:text-base truncate">Generate Cold Email</span>
+                    <ArrowRight className="ml-1 sm:ml-2 h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 flex-shrink-0" />
                   </>
                 )}
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="md:col-span-3 border-0 shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-gray-800 dark:text-gray-100">
-                <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-violet-500 dark:text-violet-400" />
-                Email Composer
+          {/* Email Composer Card */}
+          <Card className="xl:col-span-3 border-0 shadow-lg md:shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm hover:shadow-xl md:hover:shadow-2xl transition-all duration-300">
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl text-gray-800 dark:text-gray-100">
+                <Mail className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-violet-500 dark:text-violet-400 flex-shrink-0" />
+                <span className="truncate">Email Composer</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6">
+            <CardContent className="space-y-3 sm:space-y-4 md:space-y-6">
               {emailData ? (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <div className="space-y-3 sm:space-y-4 md:space-y-6">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
                       Subject Line
                     </label>
                     <Input
@@ -706,13 +708,13 @@ export default function InvestorDashboard() {
                           email_subject: e.target.value,
                         })
                       }
-                      className="font-medium text-base sm:text-lg border-2 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                      className="font-medium text-sm sm:text-base md:text-lg border-2 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
                       placeholder="Enter email subject..."
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
                       Email Content
                     </label>
                     <Textarea
@@ -723,13 +725,13 @@ export default function InvestorDashboard() {
                           email_body: e.target.value,
                         })
                       }
-                      rows={10}
-                      className="resize-none border-2 focus:border-violet-500 dark:focus:border-violet-400 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm sm:text-base"
+                      rows={8}
+                      className="resize-none border-2 focus:border-violet-500 dark:focus:border-violet-400 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xs sm:text-sm md:text-base"
                       placeholder="Your personalized email content will appear here..."
                     />
                   </div>
 
-                  <div className="flex flex-wrap gap-2 sm:gap-3 pt-4">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-3 pt-2 sm:pt-4">
                     <Button
                       onClick={sendEmail}
                       disabled={
@@ -737,20 +739,18 @@ export default function InvestorDashboard() {
                         !emailData.email_subject ||
                         !emailData.email_body
                       }
-                      className="relative inline-flex flex-1 sm:flex-none items-center justify-center px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-md hover:from-emerald-600 hover:to-teal-700 dark:hover:from-emerald-700 dark:hover:to-teal-800 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                      className="relative inline-flex flex-1 sm:flex-none items-center justify-center px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 text-xs sm:text-sm md:text-base font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-md hover:from-emerald-600 hover:to-teal-700 dark:hover:from-emerald-700 dark:hover:to-teal-800 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                       size="lg"
                     >
                       {isSending ? (
                         <>
-                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                          <span className="hidden sm:inline">Sending...</span>
-                          <span className="sm:hidden">Send...</span>
+                          <RefreshCw className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin flex-shrink-0" />
+                          <span className="text-xs sm:text-sm md:text-base truncate">Sending...</span>
                         </>
                       ) : (
                         <>
-                          <Send className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                          <span className="hidden sm:inline">Send Email</span>
-                          <span className="sm:hidden">Send</span>
+                          <Send className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm md:text-base truncate">Send Email</span>
                         </>
                       )}
                     </Button>
@@ -762,20 +762,18 @@ export default function InvestorDashboard() {
                         !emailData.email_subject ||
                         !emailData.email_body
                       }
-                      className="relative inline-flex flex-1 sm:flex-none items-center justify-center px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-600 dark:to-blue-700 rounded-md hover:from-cyan-600 hover:to-blue-700 dark:hover:from-cyan-700 dark:hover:to-blue-800 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                      className="relative inline-flex flex-1 sm:flex-none items-center justify-center px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 text-xs sm:text-sm md:text-base font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-600 dark:to-blue-700 rounded-md hover:from-cyan-600 hover:to-blue-700 dark:hover:from-cyan-700 dark:hover:to-blue-800 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
                       size="lg"
                     >
                       {isSaving ? (
                         <>
-                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                          <span className="hidden sm:inline">Saving...</span>
-                          <span className="sm:hidden">Save...</span>
+                          <RefreshCw className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin flex-shrink-0" />
+                          <span className="text-xs sm:text-sm md:text-base truncate">Saving...</span>
                         </>
                       ) : (
                         <>
-                          <Save className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                          <span className="hidden sm:inline">Save Edits</span>
-                          <span className="sm:hidden">Save</span>
+                          <Save className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm md:text-base truncate">Save Edits</span>
                         </>
                       )}
                     </Button>
@@ -783,16 +781,16 @@ export default function InvestorDashboard() {
                     <Button
                       variant="outline"
                       onClick={copyToClipboard}
-                      className="relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                      className="relative inline-flex items-center justify-center px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                       disabled={
                         !emailData.email_subject || !emailData.email_body
                       }
                       size="sm"
                     >
                       {copied ? (
-                        <Check className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
+                        <Check className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-500 dark:text-emerald-400" />
                       ) : (
-                        <Copy className="h-4 w-4" />
+                        <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                       )}
                     </Button>
 
@@ -800,46 +798,44 @@ export default function InvestorDashboard() {
                       variant="outline"
                       onClick={generateColdEmail}
                       disabled={isGenerating}
-                      className="relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                      className="relative inline-flex items-center justify-center px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                       size="sm"
                     >
-                      <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${isGenerating ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 sm:py-16">
-                  <div className="relative mb-4 sm:mb-6">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-violet-400 to-pink-400 dark:from-violet-500 dark:to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg animate-bounce">
-                      <Sparkles className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                <div className="text-center py-8 sm:py-12 md:py-16">
+                  <div className="relative mb-3 sm:mb-4 md:mb-6">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-br from-violet-400 to-pink-400 dark:from-violet-500 dark:to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg animate-bounce">
+                      <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-white" />
                     </div>
-                    <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-violet-400/30 dark:bg-violet-500/30 animate-ping"></div>
+                    <div className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto rounded-full bg-violet-400/30 dark:bg-violet-500/30 animate-ping"></div>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold mb-3 text-gray-800 dark:text-gray-100">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 text-gray-800 dark:text-gray-100">
                     Ready to Create Magic?
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 md:mb-6 max-w-md mx-auto text-xs sm:text-sm md:text-base px-4">
                     Generate a personalized cold email tailored specifically for
                     this investor using AI.
                   </p>
                   <Button
                     onClick={generateColdEmail}
                     disabled={isGenerating}
-                    className="relative inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-violet-500 to-pink-500 dark:from-violet-600 dark:to-pink-600 rounded-md hover:from-violet-600 hover:to-pink-600 dark:hover:from-violet-700 dark:hover:to-pink-700 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+                    className="relative inline-flex items-center justify-center px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-xs sm:text-sm md:text-base font-medium text-white bg-gradient-to-r from-violet-500 to-pink-500 dark:from-violet-600 dark:to-pink-600 rounded-md hover:from-violet-600 hover:to-pink-600 dark:hover:from-violet-700 dark:hover:to-pink-700 hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
                     size="lg"
                   >
                     {isGenerating ? (
                       <>
-                        <RefreshCw className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                        <span className="hidden sm:inline">Creating Magic...</span>
-                        <span className="sm:hidden">Creating...</span>
+                        <RefreshCw className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 animate-spin flex-shrink-0" />
+                        <span className="text-xs sm:text-sm md:text-base truncate">Creating Magic...</span>
                       </>
                     ) : (
                       <>
-                        <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="hidden sm:inline">Generate Email Now</span>
-                        <span className="sm:hidden">Generate Now</span>
-                        <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        <Zap className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm md:text-base truncate">Generate Email Now</span>
+                        <ArrowRight className="ml-1 sm:ml-2 h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 flex-shrink-0" />
                       </>
                     )}
                   </Button>
@@ -847,51 +843,51 @@ export default function InvestorDashboard() {
               )}
 
               {recentEmails.length > 0 && (
-                <div className="mt-6 sm:mt-8">
-                  <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-gray-100">
+                <div className="mt-4 sm:mt-6 md:mt-8">
+                  <h4 className="text-sm sm:text-base md:text-lg font-semibold mb-2 sm:mb-3 md:mb-4 text-gray-800 dark:text-gray-100">
                     Recent Email Generations
                   </h4>
-                  <ScrollArea className="h-[16rem] sm:h-[20rem] md:h-[24rem] w-full rounded-md border border-gray-200 dark:border-gray-700">
-                    <div className="p-3 sm:p-4 space-y-3">
+                  <ScrollArea className="h-48 sm:h-60 md:h-72 lg:h-80 xl:h-96 w-full rounded-md border border-gray-200 dark:border-gray-700">
+                    <div className="p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3">
                       {recentEmails.map((email, index) => (
                         <Card
                           key={index}
                           className="bg-gray-50 dark:bg-gray-700/50 border-0"
                         >
-                          <CardContent className="p-3 sm:p-4">
-                            <div className="flex flex-col gap-3">
+                          <CardContent className="p-2 sm:p-3 md:p-4">
+                            <div className="flex flex-col gap-2 sm:gap-3">
                               <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm sm:text-base truncate">
+                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-xs sm:text-sm md:text-base truncate">
                                   {email.email_subject}
                                 </p>
-                                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
+                                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-0.5 sm:mt-1">
                                   {email.email_body}
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-0.5 sm:mt-1">
                                   Generated: {email.created_at || "Unknown"}
                                 </p>
                               </div>
-                              <div className="flex gap-2 w-full">
+                              <div className="flex gap-1.5 sm:gap-2 w-full">
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => editRecentEmail(email)}
-                                  className="relative inline-flex flex-1 items-center justify-center px-3 py-1 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                  className="relative inline-flex flex-1 items-center justify-center px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                 >
-                                  <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                                  <span className="text-xs sm:text-sm">Edit</span>
+                                  <Edit className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 mr-1 sm:mr-2 flex-shrink-0" />
+                                  <span className="text-xs sm:text-sm truncate">Edit</span>
                                 </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => {
-                                    console.log("Deleting email:", email.id);
-                                    deleteEmail(email.id);
+                                    console.log("Deleting email:", email.outreach_id);
+                                    deleteEmail(email.outreach_id);
                                   }}
-                                  className="relative inline-flex flex-1 items-center justify-center px-3 py-1 text-xs sm:text-sm font-medium text-rose-600 dark:text-rose-400 border border-gray-300 dark:border-gray-600 rounded-md hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+                                  className="relative inline-flex flex-1 items-center justify-center px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm font-medium text-rose-600 dark:text-rose-400 border border-gray-300 dark:border-gray-600 rounded-md hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
                                 >
-                                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                                  <span className="text-xs sm:text-sm">Delete</span>
+                                  <Trash2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 mr-1 sm:mr-2 flex-shrink-0" />
+                                  <span className="text-xs sm:text-sm truncate">Delete</span>
                                 </Button>
                               </div>
                             </div>
