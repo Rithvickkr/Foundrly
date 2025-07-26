@@ -48,12 +48,12 @@ const data = {
  
   navMain: [
     {
-      title: "New Pitch Deck",
-      url: "/appdash",
+      title: "New Startup Blueprint",
+      url: "/createpitchdeck",
       icon: SquareTerminal,
     },
     {
-      title: "Decks",
+      title: "Blueprints",
       url: "/decks",
       icon: Presentation,
     },

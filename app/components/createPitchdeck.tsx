@@ -576,10 +576,9 @@ export function CreatePitchDeck() {
         className="container mx-auto px-4 sm:px-8 max-w-4xl mb-12 text-center"
       >
         <div className="flex flex-col items-center gap-6">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-slate-50">
-            Craft Your <span className="text-indigo-600 dark:text-indigo-400">Investor-Ready</span>{" "}
-            Pitch Deck
-          </h1>
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-slate-50">
+            Craft Your <span className="text-indigo-600 dark:text-indigo-400">Startup Blueprint</span>
+            </h1>
           <p className="text-base text-gray-600 dark:text-slate-300 max-w-2xl">
             Transform your startup vision into a compelling pitch with AI-driven
             insights and seamless automation.
@@ -615,10 +614,10 @@ export function CreatePitchDeck() {
             <CardHeader className="px-8 py-6">
               <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-slate-50 flex items-center">
                 <FileText className="w-6 h-6 mr-2 text-indigo-500 dark:text-indigo-400" />
-                Pitch Essentials
+               Essentials
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-slate-300">
-                Define the core elements of your pitch deck.
+                Define the core elements of your startup.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-8 py-6 grid grid-cols-1 lg:grid-row-2 gap-6">

@@ -84,7 +84,7 @@ export default function DecksPage() {
         setError(null);
       } catch (error) {
         console.error("Failed to fetch decks:", error);
-        setError("Failed to load pitch decks. Please try again.");
+        setError("Failed to load blueprints found Please try again.");
       } finally {
         setLoading(false);
       }
@@ -99,7 +99,7 @@ export default function DecksPage() {
       const fetchedDecks = await getDecks();
       setDecks(fetchedDecks || []);
     } catch (err) {
-      setError("Failed to load pitch decks. Please try again.");
+      setError("Failed to load blueprints found. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -194,7 +194,7 @@ export default function DecksPage() {
       setDeckToDelete(null);
     } catch (error) {
       console.error("Failed to delete deck:", error);
-      toast.error("Failed to delete pitch deck. Please try again.");
+      toast.error("Failed to delete startup blueprint. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -319,7 +319,7 @@ export default function DecksPage() {
             </h3>
 
             <p className="text-gray-600 dark:text-gray-300 text-center mb-2">
-              Are you sure you want to delete this pitch deck?
+              Are you sure you want to delete this startup blueprint. Please try again.");?
             </p>
 
             {deckToDelete && (
@@ -406,7 +406,7 @@ export default function DecksPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search pitch decks..."
+                  placeholder="Search blueprints found..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-60 lg:w-80 bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 backdrop-blur-sm text-sm transition-all focus:w-72 lg:focus:w-96"
@@ -447,7 +447,7 @@ export default function DecksPage() {
                   className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25 text-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">New Deck</span>
+                  <span className="hidden sm:inline">New Blueprint</span>
                 </Link>
               </motion.div>
             </div>
@@ -467,7 +467,7 @@ export default function DecksPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search pitch decks..."
+                  placeholder="Search blueprints found..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 backdrop-blur-sm text-sm"
@@ -656,7 +656,7 @@ export default function DecksPage() {
                   <Folder className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  No pitch decks found
+                  No blueprints found
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
                   {searchQuery ||
@@ -665,7 +665,7 @@ export default function DecksPage() {
                   selectedTargetMarket !== "All" ||
                   filterIndustry
                     ? "Try adjusting your search or filters"
-                    : "Create your first pitch deck to get started"}
+                    : "Create your first startup blueprint to get started"}
                 </p>
                 <motion.button
                   whileHover={{ scale: 1.02 }}

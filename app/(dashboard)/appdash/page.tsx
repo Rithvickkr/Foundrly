@@ -408,7 +408,7 @@ export default function Dashboard() {
               onClick={() => router.push("/createpitchdeck")}
             >
               <Plus className="w-5 h-5 mr-2" />
-              New Pitch Deck
+              New Startup Blueprint
             </Button>
             </motion.div>
           </CardContent>
@@ -447,7 +447,7 @@ export default function Dashboard() {
         Dashboard Overview
           </CardTitle>
           <p className="text-gray-600 dark:text-gray-400 mt-1 text-base">
-        Track your progress and manage your pitch decks
+        Track your progress and manage your startup effectively
           </p>
         </div>
           </CardHeader>
@@ -480,7 +480,7 @@ export default function Dashboard() {
           </p>
         </motion.div>
         <p className="text-white/70 text-sm">
-          Pitch decks created
+          Blueprints created
         </p>
           </div>
           <motion.div
@@ -526,7 +526,7 @@ export default function Dashboard() {
           </p>
         </motion.div>
         <p className="text-white/70 text-sm">
-          Decks this period
+          Blueprints this period
         </p>
           </div>
           <motion.div
@@ -577,7 +577,7 @@ export default function Dashboard() {
         Ready to Create?
           </h3>
           <p className="text-white/70 text-sm leading-relaxed">
-        Launch a new pitch deck with AI assistance
+        Launch a new startup blueprint with AI assistance
           </p>
         </div>
 
@@ -1455,7 +1455,7 @@ export default function Dashboard() {
             >
               <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.div>
-            <span>Create New Pitch Deck</span>
+            <span>Create New Startup Blueprint</span>
             <motion.div
               className="opacity-0 group-hover:opacity-100 transition-all duration-200 hidden sm:block"
               whileHover={{ x: 3 }}
