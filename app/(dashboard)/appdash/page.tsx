@@ -590,7 +590,7 @@ export default function Dashboard() {
         onClick={() => router.push("/createpitchdeck")}
           >
         <Plus className="w-4 h-4 mr-2" />
-        Create Deck
+        Create New Startup Blueprint
           </Button>
         </motion.div>
           </div>
