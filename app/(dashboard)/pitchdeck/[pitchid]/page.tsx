@@ -510,7 +510,7 @@ export default function PitchDeckDetail() {
   useEffect(() => {
     const fetchPitchDeck = async () => {
       if (!id) {
-        console.error("Pitch Deck ID is missing!");
+        console.error("Startup Blueprint ID is missing!");
         setLoading(false);
         return;
       }
@@ -969,7 +969,7 @@ export default function PitchDeckDetail() {
                 transition={{ delay: 0.2 }}
                 className="text-2xl font-bold text-blue-700 dark:text-indigo-300 tracking-tight"
               >
-                Loading Pitch Deck...
+                Loading Startup Blueprint...
               </motion.p>
               <motion.div
                 initial={{ width: 0 }}
@@ -1011,7 +1011,7 @@ export default function PitchDeckDetail() {
                 <FileText className="w-16 h-16 text-red-500 mx-auto" />
               </motion.div>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400" role="alert">
-                Pitch Deck Not Found
+                Startup Blueprint Not Found
               </p>
               <ActionButton
                 onClick={() => router.push("/")}
@@ -1028,6 +1028,7 @@ export default function PitchDeckDetail() {
 
   // Main content with enhanced styling
   return (
+    
     <div className="min-h-screen py-8 px-4 sm:px-8 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-950/50 dark:to-indigo-950  dark:text-gray-100 text-gray-800  relative overflow-hidden">
       <FloatingParticles />
       
@@ -1040,7 +1041,7 @@ export default function PitchDeckDetail() {
             transition={{ duration: 0.7, ease: "easeOut" }}
             className="space-y-16"
           >
-            {/* Pitch Deck Overview with enhanced design */}
+            {/* Startup Blueprint Overview with enhanced design */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
